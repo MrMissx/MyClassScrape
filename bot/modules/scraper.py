@@ -33,7 +33,7 @@ async def getclass(ctx):
         dateold = ""
 
         for sched in schedule:
-            if count > 6:  # only scrape 1 week
+            if count > 5:  # only scrape 5 days cause discord max msg limitation
                 break
             date = sched["DisplayStartDate"]
             if date != dateold:
