@@ -11,12 +11,13 @@ my prefix is `{BOT_PREFIX}`
 
 Below you can see all the commands I know.
 `help    `= Display this help menu.
-`getclass`= Get your class schedule from.
+`getclass`= Get your class schedule `alias[myclass, schedule]`.
 `invite  `= Get my invite link.
-`ping    `=
+`save    `= Save your credentials `alias[auth]`
+`ping    `= Check my latency to Discord WebSocket.
 `source  `= link to my source code `alias[src]`.
 
-"Made by 💖 [Mr.Miss](https://discord.com/users/{OWNER_ID})"
+"Made with 💖 by [Mr.Miss](https://github.com/keselekpermen69)"
 """
 
 
