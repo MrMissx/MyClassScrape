@@ -1,0 +1,8 @@
+config.py
+__pycache__/*
+bot/__pycache__/*
+bot/utils/__pycache__/*
+bot/modules/__pycache__/*
+bot/modules/sql/__pycache__/*
+.vscode/*
+bin/*

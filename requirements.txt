@@ -1,0 +1,4 @@
+discord.py
+requests
+psycopg2
+sqlalchemy
