@@ -1,4 +1,5 @@
 discord.py
-requests
 psycopg2
+pytz
+requests
 sqlalchemy
