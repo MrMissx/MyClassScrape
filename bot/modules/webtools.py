@@ -18,7 +18,11 @@ async def ping(ctx):
 
 @bot.command(aliases=['src'])
 async def source(ctx):
-    text = "My source code is curently in private since this bot still in development.\n"
-    text += f"You can contact [my owner](https://discord.com/users/{OWNER_ID}) if you wan't to support :)"
+    icon = "https://cdn.discordapp.com/avatars/302015492154195968/00d7e6ee6aef91a302f89ce10c3089f8.png?size=1024"
+    text = ("[Here](https://github.com/keselekpermen69/MyClassScrape) My source code.\n"
+            f"You can contact [my owner](https://discord.com/users/{OWNER_ID}) if you wan't to support :)"
+    )
+
     embed = Embed(color=0xffb6c1, description=text)
+    embed.set_footer(text="Mr.Miss#6333", icon_url=icon)
     await ctx.send(embed=embed)
