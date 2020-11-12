@@ -15,7 +15,12 @@ url = "https://myclass.apps.binus.ac.id/Home/GetViconSchedule"
 async def getclass(ctx):
     msg = await ctx.send("Give me a sec...")
     user = ctx.author.id
-    usr, sec = getcred(user)
+    try:
+        usr, sec = getcred(user)
+    except TypeError:
+        await ctx.send(f"**No credentials found**\nCreate it with `{BOT_PREFIX}auth.`")
+        await msg.delete()
+        return
 
     session = requests.Session()
     with session.post(login_url, data={
