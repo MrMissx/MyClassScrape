@@ -6,7 +6,7 @@ from discord import Embed
 @bot.command()
 async def invite(ctx):
     embed = Embed(color=0xffb6c1,
-        description="[Here My invite link](https://discord.com/api/oauth2/authorize?client_id=775903023821881374&permissions=8&scope=bot)")
+        description="[Here My invite link](https://discord.com/oauth2/authorize?client_id=775903023821881374&permissions=522304&scope=bot)")
     await ctx.send(embed=embed)
 
 
