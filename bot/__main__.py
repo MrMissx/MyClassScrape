@@ -6,18 +6,17 @@ from bot import bot, BOT_TOKEN, BOT_PREFIX, LOGGER, OWNER_ID
 
 
 HELP_STRING=f"""
-**Hello there!**
 my prefix is `{BOT_PREFIX}`
 
 Below you can see all the commands I know.
+
 `help    `= Display this help menu.
 `getclass`= Get your class schedule `alias[myclass, schedule]`.
 `invite  `= Get my invite link.
-`save    `= Save your credentials `alias[auth]`
+`auth    `= Save your credentials `alias[save]`
 `ping    `= Check my latency to Discord WebSocket.
 `source  `= link to my source code `alias[src]`.
 
-"Made with 💖 by [Mr.Miss](https://github.com/keselekpermen69)"
 """
 
 
@@ -32,7 +31,9 @@ async def on_ready():
 
 @bot.command()
 async def help(ctx):
-    embed = discord.Embed(color=0x9b59b6, description=HELP_STRING)
+    icon = "https://cdn.discordapp.com/avatars/302015492154195968/00d7e6ee6aef91a302f89ce10c3089f8.png?size=1024"
+    embed = discord.Embed(color=0x9b59b6, title="**Hello there!**", description=HELP_STRING)
+    embed.set_footer(text="Made with 💖 by Mr.Miss#6333", icon_url=icon)
     await ctx.send(embed=embed)
 
 
