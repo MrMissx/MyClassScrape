@@ -1,4 +1,4 @@
-from bot import bot, OWNER_ID
+from bot import bot
 from datetime import datetime
 from discord import Embed
 
@@ -18,9 +18,11 @@ async def ping(ctx):
 
 @bot.command(aliases=['src'])
 async def source(ctx):
+    app = await bot.application_info()
+    owner = app.owner.id
     icon = "https://cdn.discordapp.com/avatars/302015492154195968/00d7e6ee6aef91a302f89ce10c3089f8.png?size=1024"
     text = ("[Here](https://github.com/keselekpermen69/MyClassScrape) My source code.\n"
-            f"You can contact [my owner](https://discord.com/users/{OWNER_ID}) if you wan't to support :)"
+            f"You can contact [my owner](https://discord.com/users/{owner}) if you wan't to support :)"
     )
 
     embed = Embed(color=0xffb6c1, description=text)

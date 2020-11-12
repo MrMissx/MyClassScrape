@@ -2,7 +2,7 @@ import discord
 
 from importlib import import_module
 from bot.modules import ALL_MODULES
-from bot import bot, BOT_TOKEN, BOT_PREFIX, LOGGER, OWNER_ID
+from bot import bot, BOT_TOKEN, BOT_PREFIX, LOGGER
 
 
 HELP_STRING=f"""
@@ -45,6 +45,9 @@ async def on_guild_join(guild):
         if channel.permissions_for(guild.me).send_messages:
             await channel.send(embed=embed)
             break
+    app = await bot.application_info()
+    owner = app.owner
+    await owner.send(f"Bot joined to **{guild.name}**")
 
 
 if __name__ == "__main__":

@@ -18,7 +18,6 @@ ENV = bool(os.environ.get("ENV", False))
 if ENV:
     BOT_TOKEN = os.environ.get("BOT_TOKEN", False)
     BOT_PREFIX = os.environ.get("BOT_PREFIX", False)
-    OWNER_ID = os.environ.get("OWNER_ID", False)
     DB_URI = os.environ.get("DB_URI", False)
     ENC_SEC = os.environ.get("ENC_SEC", None)
     DEC_SEC = os.environ.get("DEC_SEC", None)
@@ -28,7 +27,6 @@ else:
 
     BOT_TOKEN = config.BOT_TOKEN    
     BOT_PREFIX = config.BOT_PREFIX
-    OWNER_ID = config.OWNER_ID
     ENC_SEC = config.ENC_SEC
     DEC_SEC = config.DEC_SEC
     DB_URI = config.DATABASE_URL
@@ -36,3 +34,4 @@ else:
 
 bot = commands.Bot(command_prefix=BOT_PREFIX)
 bot.remove_command('help')  # removing the default help
+
