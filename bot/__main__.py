@@ -37,5 +37,15 @@ async def help(ctx):
     await ctx.send(embed=embed)
 
 
+@bot.event
+async def on_guild_join(guild):
+    embed = discord.Embed(color=0x9b59b6, title="**Hello there!**", description=f"Thank you For inviting me \
+                            \nYou can type `{BOT_PREFIX}help` to see my commands")
+    for channel in guild.text_channels:
+        if channel.permissions_for(guild.me).send_messages:
+            await channel.send(embed=embed)
+            break
+
+
 if __name__ == "__main__":
     bot.run(BOT_TOKEN)
