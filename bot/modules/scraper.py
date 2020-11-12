@@ -4,6 +4,8 @@ import discord
 from bot import bot, BOT_PREFIX
 from bot.utils import formater, decrypt
 import bot.modules.sql.cred_sql as saved
+from datetime import datetime
+from pytz import timezone
 
 login_url="https://myclass.apps.binus.ac.id/Auth/Login"
 url = "https://myclass.apps.binus.ac.id/Home/GetViconSchedule"
@@ -38,7 +40,7 @@ async def getclass(ctx):
             date = sched["DisplayStartDate"]
             if date != dateold:
                 count+=1
-                text += f"\n**{date}**\n\n"
+                text += f"\n# **{date}**\n\n"
                 dateold=date
 
             time = sched["StartTime"][:-3] + "-" + sched["EndTime"][:-3]  # get rid of :seconds
@@ -54,7 +56,10 @@ async def getclass(ctx):
                 meetingurl = "-"
 
             text += formater(time, classcode, classtype, course, week, session, meetingurl)
-        embed = discord.Embed(color=0xff69b4, description=text)
+        timenow = datetime.now(timezone("Asia/Jakarta"))
+        author = ctx.author.name + "#" + ctx.author.discriminator  
+        embed = discord.Embed(color=0xff69b4, description=text, timestamp=timenow)
+        embed.set_footer(text=f"By {author}")
         await ctx.send(embed=embed)
         await msg.delete()
 
