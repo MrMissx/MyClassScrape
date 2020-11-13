@@ -16,7 +16,6 @@ Below you can see all the commands I know.
 `auth    `= Save your credentials `alias[save]`
 `ping    `= Check my latency to Discord WebSocket.
 `source  `= link to my source code `alias[src]`.
-
 """
 
 

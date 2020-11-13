@@ -2,7 +2,7 @@ import bot.modules.sql.cred_sql as saved
 import discord
 import requests
 
-from bot import bot, BOT_PREFIX
+from bot import bot, BOT_PREFIX, CS_GUILD_ID, LOGGER
 from bot.utils import formater, decrypt
 from datetime import datetime
 from discord.ext.commands import MessageConverter
@@ -18,14 +18,23 @@ fail_text = f"**No credentials found**\nCreate it with `{BOT_PREFIX}auth.`"
 async def getclass(ctx):
     msg = await ctx.send("Give me a sec...")
     user = ctx.author.id
+    text = ""
 
-    try:
-        cht_id = saved.get_cred(user)
-        if cht_id is None:
+    cht_id = saved.get_cred(user)
+    if cht_id is None:
+        if str(ctx.guild.id) == CS_GUILD_ID:  #CS LA04
+            LOGGER.info("CS Schedule request")
+            app = await bot.application_info()
+            owner = app.owner.id
+            cht_id = saved.get_cred(str(owner))
+            text += "**This is a default Schedule of LA04(my owner)!\nyour Schedule may vary.**"
+            text += f"\nYou can `{BOT_PREFIX}auth` yourself to scrape your schedule."
+        else:
             await ctx.send(fail_text)
             await msg.delete()
             return
         
+    try:
         dec = decrypt(cht_id)
         data = await MessageConverter().convert(ctx, str(dec))
         data = data.content
@@ -33,6 +42,7 @@ async def getclass(ctx):
         usr, sec = secret.split("$")
 
     except MessageNotFound:
+        saved.del_cred(user)  # delete user id
         await ctx.send(fail_text)
         await msg.delete()
         return
@@ -50,7 +60,6 @@ async def getclass(ctx):
 
     with session.post(url) as data:
         schedule = data.json()
-        text = ""
         count=0
         dateold = ""
 
@@ -76,6 +85,7 @@ async def getclass(ctx):
                 meetingurl = "-"
 
             text += formater(time, classcode, classtype, course, week, session, meetingurl)
+        
         timenow = datetime.now(timezone("Asia/Jakarta"))
         author = ctx.author.name + "#" + ctx.author.discriminator
         embed = discord.Embed(color=0xff69b4, description=text, timestamp=timenow)
