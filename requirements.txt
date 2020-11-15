@@ -1,4 +1,5 @@
 discord.py
+heroku3
 psycopg2
 pytz
 requests

@@ -26,7 +26,7 @@ async def auth(ctx, cred: str=None):
 
     try:  # just checking the format
         cred.replace(f"{BOT_PREFIX}auth ", "")
-        cred.split("$")
+        _, _ = cred.split("$")
     except ValueError:
         ctx.send("Please send your credential like the format given")
         return

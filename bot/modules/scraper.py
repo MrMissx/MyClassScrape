@@ -84,8 +84,9 @@ async def getclass(ctx):
             else:
                 meetingurl = "-"
 
-            text += formater(time, classcode, classtype, course, week, session, meetingurl)
-        
+            text += formater(time, classcode, classtype,
+                            course, week, session, meetingurl)
+
         timenow = datetime.now(timezone("Asia/Jakarta"))
         author = ctx.author.name + "#" + ctx.author.discriminator
         embed = discord.Embed(color=0xff69b4, description=text, timestamp=timenow)
