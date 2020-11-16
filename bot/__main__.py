@@ -1,9 +1,9 @@
 import discord
 
 from importlib import import_module
-from bot.modules import ALL_MODULES
-from bot import bot, BOT_TOKEN, BOT_PREFIX, LOGGER
 
+from bot import bot, BOT_TOKEN, BOT_PREFIX, LOGGER
+from bot.modules import ALL_MODULES
 
 HELP_STRING=f"""
 my prefix is `{BOT_PREFIX}`
@@ -50,4 +50,5 @@ async def on_guild_join(guild):
 
 
 if __name__ == "__main__":
+    LOGGER.info("Modules Loaded: " + str(ALL_MODULES))
     bot.run(BOT_TOKEN)

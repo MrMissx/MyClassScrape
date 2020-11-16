@@ -1,5 +1,6 @@
 discord.py
+dnspython
+motor
 psycopg2
 pytz
 requests
-sqlalchemy

@@ -1,17 +1,19 @@
-import bot.modules.sql.cred_sql as saved
-import discord
 import requests
 
-from bot import bot, BOT_PREFIX, CS_GUILD_ID, LOGGER
-from bot.utils import formater, decrypt
 from datetime import datetime
+from discord import Embed
 from discord.ext.commands import MessageConverter
 from discord.ext.commands.errors import MessageNotFound
 from pytz import timezone
 
+from bot import bot, BOT_PREFIX, CS_GUILD_ID, LOGGER
+from bot.utils import decrypt, formater, get_collection
+
 login_url="https://myclass.apps.binus.ac.id/Auth/Login"
 url = "https://myclass.apps.binus.ac.id/Home/GetViconSchedule"
 fail_text = f"**No credentials found**\nCreate it with `{BOT_PREFIX}auth.`"
+
+SAVED_SECRET = get_collection("CREDATA")
 
 
 @bot.command(aliases=['myclass', 'schedule'])
@@ -20,19 +22,22 @@ async def getclass(ctx):
     user = ctx.author.id
     text = ""
 
-    cht_id = saved.get_cred(user)
-    if cht_id is None:
-        if str(ctx.guild.id) == CS_GUILD_ID:  #CS LA04
+    secrt = await SAVED_SECRET.find_one({'_id': str(user)})
+    if secrt is None:
+        if (ctx.guild and str(ctx.guild.id) == CS_GUILD_ID):  #CS LA04
             LOGGER.info("CS Schedule request")
             app = await bot.application_info()
             owner = app.owner.id
-            cht_id = saved.get_cred(str(owner))
+            secrt = SAVED_SECRET.find_one({'user_id': str(owner)})
+            cht_id = secrt['secret']
             text += "**This is a default Schedule of LA04(my owner)!\nyour Schedule may vary.**"
             text += f"\nYou can `{BOT_PREFIX}auth` yourself to scrape your schedule."
         else:
             await ctx.send(fail_text)
             await msg.delete()
             return
+    else:
+        cht_id = secrt['secret']
         
     try:
         dec = decrypt(cht_id)
@@ -42,7 +47,8 @@ async def getclass(ctx):
         usr, sec = secret.split("$")
 
     except MessageNotFound:
-        saved.del_cred(user)  # delete user id
+        LOGGER.error("Message Not Found")
+        delet = SAVED_SECRET.delete_one({'_id': f"{user}"})  # delete user id
         await ctx.send(fail_text)
         await msg.delete()
         return
@@ -88,7 +94,7 @@ async def getclass(ctx):
         
         timenow = datetime.now(timezone("Asia/Jakarta"))
         author = ctx.author.name + "#" + ctx.author.discriminator
-        embed = discord.Embed(color=0xff69b4, description=text, timestamp=timenow)
+        embed = Embed(color=0xff69b4, description=text, timestamp=timenow)
         embed.set_footer(text=f"By {author}")
         await ctx.send(embed=embed)
         await msg.delete()
