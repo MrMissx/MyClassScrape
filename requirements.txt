@@ -1,6 +1,7 @@
 discord.py
 heroku3
+dnspython
+motor
 psycopg2
 pytz
 requests
-sqlalchemy

@@ -1,9 +1,10 @@
-  
 import discord
 
 from bot import bot, BOT_PREFIX, LOGGER
-import bot.modules.sql.cred_sql as credata
-from bot.utils import encrypt
+from bot.utils import encrypt, get_collection
+
+
+SAVED_SECRET = get_collection("CREDATA")
 
 
 @bot.command(aliases=['save'])
@@ -28,15 +29,17 @@ async def auth(ctx, cred: str=None):
         cred.replace(f"{BOT_PREFIX}auth ", "")
         _, _ = cred.split("$")
     except ValueError:
-        ctx.send("Please send your credential like the format given")
+        await ctx.send("Please send your credential like the format given")
         return
     
     msg_id = ctx.message.id
-    saved = credata.save_cred(str(author.id), encrypt(str(msg_id)))
-    if saved:
-        await ctx.send("Saved...\nTo delete the credentials just delete your message")
-    else:  # sad life
-        user = author.name + "#" + author.discriminator
-        await ctx.send("Seems something broke...\nwould you mind to tell my owner :)")
-        LOGGER.error(f"Error saving cred from {user}")
-        return
+    saved = await SAVED_SECRET.find_one({'_id': str(author.id)})
+    if saved is None:  # new data
+        LOGGER.info("New")
+        await SAVED_SECRET.insert_one({'_id': str(author.id),
+                                        'secret': encrypt(str(msg_id))})
+    else:  # update
+        LOGGER.info("Update")
+        await SAVED_SECRET.find_one_and_update({'_id': str(author.id)},
+                                            {"$set": {'secret': encrypt(str(msg_id))}})
+    await ctx.send("Saved...\nTo delete the credentials just delete your message")
