@@ -28,7 +28,7 @@ async def getclass(ctx):
             LOGGER.info("CS Schedule request")
             app = await bot.application_info()
             owner = app.owner.id
-            secrt = SAVED_SECRET.find_one({'user_id': str(owner)})
+            secrt = await SAVED_SECRET.find_one({'_id': str(owner)})
             cht_id = secrt['secret']
             text += "**This is a default Schedule of LA04(my owner)!\nyour Schedule may vary.**"
             text += f"\nYou can `{BOT_PREFIX}auth` yourself to scrape your schedule."
