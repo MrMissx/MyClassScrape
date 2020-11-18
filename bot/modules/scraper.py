@@ -48,7 +48,7 @@ async def getclass(ctx):
 
     except MessageNotFound:
         LOGGER.error("Message Not Found")
-        delet = SAVED_SECRET.delete_one({'_id': f"{user}"})  # delete user id
+        await SAVED_SECRET.delete_one({'_id': f"{user}"})  # delete user id
         await ctx.send(fail_text)
         await msg.delete()
         return
@@ -66,16 +66,14 @@ async def getclass(ctx):
 
     with session.post(url) as data:
         schedule = data.json()
-        count=0
         dateold = ""
 
         for sched in schedule:
-            if count > 5:  # only scrape 5 days cause discord max msg limitation
+            if len(text) > 1602 :  # break if schedule to many
                 break
             date = sched["DisplayStartDate"]
             if date != dateold:
-                count+=1
-                text += f"\n# **{date}**\n\n"
+                text += f"\n:calendar_spiral: **{date}**\n\n"
                 dateold=date
 
             time = sched["StartTime"][:-3] + "-" + sched["EndTime"][:-3]  # get rid of :seconds
