@@ -20,8 +20,7 @@ if ENV:
     BOT_TOKEN = os.environ.get("BOT_TOKEN", None)
     CS_GUILD_ID = os.environ.get("CS_GUILD_ID", None)
     DB_URI = os.environ.get("DATABASE_URL", None)
-    DEC_SEC = os.environ.get("DEC_SEC", None)
-    ENC_SEC = os.environ.get("ENC_SEC", None)
+    KEY = os.environ.get("KEY", None)
     HEROKU_API_KEY = os.environ.get("HEROKU_API_KEY", None)
     HEROKU_APP_NAME = os.environ.get("HEROKU_APP_NAME", None)
 else:
@@ -31,8 +30,7 @@ else:
     BOT_TOKEN = config.BOT_TOKEN
     CS_GUILD_ID = config.CS_GUILD_ID    
     DB_URI = config.DATABASE_URL
-    DEC_SEC = config.DEC_SEC
-    ENC_SEC = config.ENC_SEC
+    KEY = config.KEY
 
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)  # disabling warning when getting logs

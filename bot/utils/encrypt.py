@@ -1,19 +1,17 @@
-from bot import ENC_SEC, DEC_SEC
+from cryptography.fernet import Fernet
 
-#decryption Key
-decrypted = DEC_SEC.encode()
-#encryption Key
-encrypted = ENC_SEC.encode()
+from bot import KEY
 
 
-def encrypt(msg):
-    encrypt_table = bytes.maketrans(decrypted, encrypted)
-    result = msg.translate(encrypt_table)
-    return result
+f = Fernet(KEY)
 
 
-def decrypt(msg):
-    decrypt_table = bytes.maketrans(encrypted, decrypted)
-    result = msg.translate(decrypt_table)
-    return result
+def encrypt(text: str):
+    """text(str) return a byte"""
+    b_str = text.encode("utf-8")
+    return f.encrypt(b_str)
 
+
+def decrypt(enc: bytes):
+    """enc(bytes) return a string"""
+    return f.decrypt(enc).decode("utf-8")
