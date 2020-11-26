@@ -1,7 +1,7 @@
 import requests
 
 from datetime import datetime
-from discord import Embed
+from discord import Embed, NotFound
 from discord.ext.commands import MessageConverter
 from discord.ext.commands.errors import MessageNotFound
 from pytz import timezone
@@ -19,16 +19,18 @@ SAVED_SECRET = get_collection("CREDATA")
 @bot.command(aliases=['myclass', 'schedule'])
 async def getclass(ctx):
     msg = await ctx.send("Give me a sec...")
-    user = ctx.author.id
+    user = ctx.author
     text = ""
+    is_cs = False
 
-    secrt = await SAVED_SECRET.find_one({'_id': str(user)})
+    secrt = await SAVED_SECRET.find_one({'_id': str(user.id)})
     if secrt is None:
         if (ctx.guild and str(ctx.guild.id) == CS_GUILD_ID):  #CS LA04
             LOGGER.info("CS Schedule request")
             app = await bot.application_info()
-            owner = app.owner.id
-            secrt = await SAVED_SECRET.find_one({'_id': str(owner)})
+            owner = app.owner
+            secrt = await SAVED_SECRET.find_one({'_id': str(owner.id)})
+            is_cs = True
             cht_id = secrt['secret']
             text += "**This is a default Schedule of LA04(my owner)!\nyour Schedule may vary.**"
             text += f"\nYou can `{BOT_PREFIX}auth` yourself to scrape your schedule."
@@ -41,14 +43,17 @@ async def getclass(ctx):
         
     try:
         dec = decrypt(cht_id)
-        data = await MessageConverter().convert(ctx, str(dec))
+        if is_cs:
+            data = await owner.fetch_message(dec)
+        else:
+            data = await user.fetch_message(dec)
         data = data.content
         secret = data.replace(f"{BOT_PREFIX}auth ", "")
         usr, sec = secret.split("$")
 
-    except MessageNotFound:
+    except NotFound:
         LOGGER.error("Message Not Found")
-        await SAVED_SECRET.delete_one({'_id': f"{user}"})  # delete user id
+        await SAVED_SECRET.delete_one({'_id': f"{user.id}"})  # delete user id
         await ctx.send(fail_text)
         await msg.delete()
         return

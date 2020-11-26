@@ -35,11 +35,9 @@ async def auth(ctx, cred: str=None):
     msg_id = ctx.message.id
     saved = await SAVED_SECRET.find_one({'_id': str(author.id)})
     if saved is None:  # new data
-        LOGGER.info("New")
         await SAVED_SECRET.insert_one({'_id': str(author.id),
                                         'secret': encrypt(str(msg_id))})
     else:  # update
-        LOGGER.info("Update")
         await SAVED_SECRET.find_one_and_update({'_id': str(author.id)},
                                             {"$set": {'secret': encrypt(str(msg_id))}})
     await ctx.send("Saved...\nTo delete the credentials just delete your message")
