@@ -1,5 +1,6 @@
 from bot import LOGGER
 
+
 def __list_all_modules():
     import glob
     from os.path import basename, dirname, isfile

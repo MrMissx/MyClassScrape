@@ -28,11 +28,12 @@ else:
 
     BOT_PREFIX = config.BOT_PREFIX
     BOT_TOKEN = config.BOT_TOKEN
-    CS_GUILD_ID = config.CS_GUILD_ID    
+    CS_GUILD_ID = config.CS_GUILD_ID
     DB_URI = config.DATABASE_URL
     KEY = config.KEY
 
 
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)  # disabling warning when getting logs
+# disabling warning when getting logs
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 bot = commands.Bot(command_prefix=BOT_PREFIX)
 bot.remove_command('help')  # removing the default help

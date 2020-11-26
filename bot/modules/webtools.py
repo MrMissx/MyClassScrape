@@ -13,7 +13,8 @@ from pytz import timezone
 
 @bot.command()
 async def invite(ctx):
-    embed = Embed(color=0xffb6c1,
+    embed = Embed(
+        color=0xffb6c1,
         description="[Here My invite link](https://discord.com/oauth2/authorize?client_id=775903023821881374&permissions=522304&scope=bot)")
     await ctx.send(embed=embed)
 
@@ -21,20 +22,19 @@ async def invite(ctx):
 @bot.command()
 async def ping(ctx):
     latency = bot.latency
-    await ctx.send("Pong! {:.2f}ms".format(latency*1000))
+    await ctx.send("Pong! {:.2f}ms".format(latency * 1000))
 
 
 @bot.command(aliases=['src'])
 async def source(ctx):
     app = await bot.application_info()
-    owner = app.owner.id
-    icon = "https://cdn.discordapp.com/avatars/302015492154195968/00d7e6ee6aef91a302f89ce10c3089f8.png?size=1024"
-    text = ("[Here](https://github.com/keselekpermen69/MyClassScrape) My source code.\n"
-            f"You can contact [my owner](https://discord.com/users/{owner}) if you wan't to support :)"
-    )
-
+    owner = app.owner
+    icon = owner.avatar_url_as(static_format="png")
+    text = (
+        "[Here](https://github.com/keselekpermen69/MyClassScrape) My source code.\n"
+        f"You can contact [my owner](https://discord.com/users/{owner.id}) if you wan't to Help :)")
     embed = Embed(color=0xffb6c1, description=text)
-    embed.set_footer(text="Mr.Miss#6333", icon_url=icon)
+    embed.set_footer(text=owner, icon_url=icon)
     await ctx.send(embed=embed)
 
 
@@ -52,11 +52,11 @@ async def logs(ctx):
     fd = codecs.open("logs.txt", "r", encoding="utf-8")
     data = fd.read()
     key = (requests.post("https://nekobin.com/api/documents",
-                        json={"content": data}) .json() .get("result") .get("key"))
+                         json={"content": data}) .json() .get("result") .get("key"))
     url = f"https://nekobin.com/raw/{key}"
     timenow = datetime.now(timezone("Asia/Jakarta"))
     embed = Embed(color=0xff0000,
-        description=f"Bot log [here]({url})",
-        timestamp=timenow)
+                  description=f"Bot log [here]({url})",
+                  timestamp=timenow)
     await ctx.send(embed=embed)
     return os.remove("logs.txt")

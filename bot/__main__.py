@@ -5,7 +5,7 @@ from importlib import import_module
 from bot import bot, BOT_TOKEN, BOT_PREFIX, LOGGER
 from bot.modules import ALL_MODULES
 
-HELP_STRING=f"""
+HELP_STRING = f"""
 my prefix is `{BOT_PREFIX}`
 
 Below you can see all the commands I know.
@@ -22,23 +22,34 @@ Below you can see all the commands I know.
 for module in ALL_MODULES:
     imported_module = import_module("bot.modules." + module)
 
+
 @bot.event
 async def on_ready():
-    activity = discord.Activity(name=f"BinusMaya | {BOT_PREFIX}help", type=discord.ActivityType.watching)
+    activity = discord.Activity(
+        name=f"BinusMaya | {BOT_PREFIX}help",
+        type=discord.ActivityType.watching)
     await bot.change_presence(status=discord.Status.online, activity=activity)
 
 
 @bot.command()
 async def help(ctx):
-    icon = "https://cdn.discordapp.com/avatars/302015492154195968/00d7e6ee6aef91a302f89ce10c3089f8.png?size=1024"
-    embed = discord.Embed(color=0x9b59b6, title="**Hello there!**", description=HELP_STRING)
-    embed.set_footer(text="Made with 💖 by Mr.Miss#6333", icon_url=icon)
+    app = await bot.application_info()
+    owner = app.owner
+    icon = owner.avatar_url_as(static_format="png")
+    embed = discord.Embed(
+        color=0x9b59b6,
+        title="**Hello there!**",
+        description=HELP_STRING)
+    embed.set_footer(text=f"Made with 💖 by {owner}", icon_url=icon)
     await ctx.send(embed=embed)
 
 
 @bot.event
 async def on_guild_join(guild):
-    embed = discord.Embed(color=0x9b59b6, title="**Hello there!**", description=f"Thank you For inviting me \
+    embed = discord.Embed(
+        color=0x9b59b6,
+        title="**Hello there!**",
+        description=f"Thank you For inviting me \
                             \nYou can type `{BOT_PREFIX}help` to see my commands")
     for channel in guild.text_channels:
         if channel.permissions_for(guild.me).send_messages:
