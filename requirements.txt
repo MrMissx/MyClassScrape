@@ -1,3 +1,4 @@
+cryptography
 discord.py
 heroku3
 dnspython
