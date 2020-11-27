@@ -56,48 +56,49 @@ async def getclass(ctx):
         await msg.delete()
         return
 
-    async with aiohttp.ClientSession() as session:
-        async with session.get(login_url, params={
-            "Username": usr,
-            "Password": sec,
-        }) as login:
-            if login.status != 200:  # wrong credentials
-                await ctx.send(f"**Login Failed\nI think that your credential is wrong.** \
-                                \nRecreate by {BOT_PREFIX}auth again")
-                await msg.delete()
-                return
+    async with ctx.typing():    # send a typing status
+        async with aiohttp.ClientSession() as session:
+            async with session.get(login_url, params={
+                "Username": usr,
+                "Password": sec,
+            }) as login:
+                if login.status != 200:  # wrong credentials
+                    await ctx.send(f"**Login Failed\nI think that your credential is wrong.** \
+                                    \nRecreate by {BOT_PREFIX}auth again")
+                    await msg.delete()
+                    return
 
-        async with session.get(url) as data:
-            schedule = await data.json()
-            dateold = ""
+            async with session.get(url) as data:
+                schedule = await data.json()
+                dateold = ""
 
-            for sched in schedule:
-                if len(text) > 1602:  # break if schedule to many
-                    break
-                date = sched["DisplayStartDate"]
-                if date != dateold:
-                    text += f"\n:calendar_spiral: **{date}**\n\n"
-                    dateold = date
+                for sched in schedule:
+                    if len(text) > 1602:  # break if schedule to many
+                        break
+                    date = sched["DisplayStartDate"]
+                    if date != dateold:
+                        text += f"\n:calendar_spiral: **{date}**\n\n"
+                        dateold = date
 
-                time = sched["StartTime"][:-3] + "-" + \
-                    sched["EndTime"][:-3]  # get rid of :seconds
-                classcode = sched["ClassCode"]
-                classtype = sched["DeliveryMode"]
-                course = sched["CourseCode"] + " - " + sched["CourseTitleEn"]
-                week = sched["WeekSession"]
-                session = sched["CourseSessionNumber"]
+                    time = sched["StartTime"][:-3] + "-" + \
+                        sched["EndTime"][:-3]  # get rid of :seconds
+                    classcode = sched["ClassCode"]
+                    classtype = sched["DeliveryMode"]
+                    course = sched["CourseCode"] + " - " + sched["CourseTitleEn"]
+                    week = sched["WeekSession"]
+                    session = sched["CourseSessionNumber"]
 
-                if classtype == "VC":
-                    # get zoom url if it's a VidCon
-                    meetingurl = sched["MeetingUrl"]
-                else:
-                    meetingurl = "-"
+                    if classtype == "VC":
+                        # get zoom url if it's a VidCon
+                        meetingurl = sched["MeetingUrl"]
+                    else:
+                        meetingurl = "-"
 
-                text += formater(time, classcode, classtype,
-                                course, week, session, meetingurl)
+                    text += formater(time, classcode, classtype,
+                                    course, week, session, meetingurl)
 
-    timenow = datetime.now(timezone("Asia/Jakarta"))
-    embed = Embed(color=0xff69b4, description=text, timestamp=timenow)
-    embed.set_footer(text=f"By {user}")
-    await ctx.send(embed=embed)
-    await msg.delete()
+        timenow = datetime.now(timezone("Asia/Jakarta"))
+        embed = Embed(color=0xff69b4, description=text, timestamp=timenow)
+        embed.set_footer(text=f"By {user}")
+        await ctx.send(embed=embed)
+        await msg.delete()
