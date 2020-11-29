@@ -24,14 +24,6 @@ for module in ALL_MODULES:
     imported_module = import_module("bot.modules." + module)
 
 
-@bot.event
-async def on_ready():
-    activity = discord.Activity(
-        name=f"BinusMaya | {BOT_PREFIX}help",
-        type=discord.ActivityType.watching)
-    await bot.change_presence(status=discord.Status.online, activity=activity)
-
-
 @bot.command()
 @send_typing
 async def help(ctx):
@@ -62,6 +54,15 @@ async def on_guild_join(guild):
     await owner.send(f"Bot joined to **{guild.name}**")
 
 
+async def startup():
+    await bot.wait_until_ready()
+    activity = discord.Activity(
+        name=f"BinusMaya | {BOT_PREFIX}help",
+        type=discord.ActivityType.watching)
+    await bot.change_presence(status=discord.Status.online, activity=activity)
+
+
 if __name__ == "__main__":
     LOGGER.info("Modules Loaded: " + str(ALL_MODULES))
+    bot.loop.create_task(startup())
     bot.run(BOT_TOKEN)
