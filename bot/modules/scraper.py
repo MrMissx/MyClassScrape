@@ -1,6 +1,6 @@
 import aiohttp
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from discord import Embed, NotFound
 from pytz import timezone
 
@@ -17,50 +17,91 @@ SAVED_SECRET = get_collection("CREDATA")
 
 
 @bot.command(aliases=['myclass', 'schedule'])
-async def getclass(ctx):
-    msg = await ctx.send("Give me a sec...")
-    usr , sec, text = await fetch_credentials(ctx, msg)
+async def getclass(ctx, args: str=None):
+    user = ctx.author
+    usr , sec, text = await fetch_credentials(ctx, user)
+
+    if args:
+        if args.lower() in ["now", "today"]:
+            args = "0"
+        elif args.lower() == "tomorrow":
+            args = "1"
 
     async with ctx.typing():    # send a typing status
-        schedule = await login(ctx, usr, sec, msg)
+        schedule = await login(ctx, usr, sec)
         if not schedule:
             return
-        dateold = ""
 
-        for sched in schedule:
-            if len(text) > 1602:  # break if schedule to many
-                break
-            date = sched["DisplayStartDate"]
-            if date != dateold:
-                text += f"\n:calendar_spiral: **{date}**\n\n"
-                dateold = date
+        if args is None:
+            dateold = ""
+            title = "**Class Schedule**"
+            for sched in schedule:
+                if len(text) > 1602:  # break if schedule to many
+                    break
+                date = sched["DisplayStartDate"]
+                if date != dateold:
+                    text += f"\n:calendar_spiral: **{date}**\n\n"
+                    dateold = date
 
-            time = sched["StartTime"][:-3] + "-" + \
-                sched["EndTime"][:-3]  # get rid of :seconds
-            classcode = sched["ClassCode"]
-            classtype = sched["DeliveryMode"]
-            course = sched["CourseCode"] + " - " + sched["CourseTitleEn"]
-            week = sched["WeekSession"]
-            session = sched["CourseSessionNumber"]
+                time = sched["StartTime"][:-3] + "-" + \
+                    sched["EndTime"][:-3]  # get rid of :seconds
+                classcode = sched["ClassCode"]
+                classtype = sched["DeliveryMode"]
+                course = sched["CourseCode"] + " - " + sched["CourseTitleEn"]
+                week = sched["WeekSession"]
+                session = sched["CourseSessionNumber"]
+                meetingurl = None
+                if classtype == "VC":
+                    # get zoom url if it's a VidCon
+                    meetingurl = sched["MeetingUrl"]
 
-            meetingurl = None
-            if classtype == "VC":
-                # get zoom url if it's a VidCon
-                meetingurl = sched["MeetingUrl"]
+                text += formater(time, classcode, classtype,
+                                course, week, session, meetingurl)
 
-            text += formater(time, classcode, classtype,
-                            course, week, session, meetingurl)
+        elif args.isnumeric():
+            now = datetime.now(timezone("Asia/Jakarta")) + timedelta(days=int(args))
+            datewanted = now.strftime("%d %b %Y")  # dd MMM yyyy
+            title = f"**Schedule for {datewanted}**"
+            for sched in schedule:
+                dateclass = sched["DisplayStartDate"]
+                if datewanted in dateclass:
+                    timeclass = sched["StartTime"][:-3] + "-" + \
+                        sched["EndTime"][:-3]  # get rid of :seconds
+                    classcode = sched["ClassCode"]
+                    classtype = sched["DeliveryMode"]
+                    course = sched["CourseCode"] + " - " + sched["CourseTitleEn"]
+                    week = sched["WeekSession"]
+                    session = sched["CourseSessionNumber"]
+                    meetingurl = None
+                    if classtype == "VC":
+                        meetingurl = sched["MeetingUrl"]  # get zoom url if it's a VidCon
+
+                    text += formater(timeclass, classcode, classtype,
+                                course, week, session, meetingurl)
+
+            if WARN_TEXT in text:
+                temp = text.replace(WARN_TEXT, "")  # if use my creds
+                if temp is "":
+                    text += "\nGreat you don't have a schedule at this date :grin:"
+            elif text is "":
+                    text = "Great you don't have any schedule at this date :grin:"
+
+        else:
+            return await ctx.send("Unknown arguments\nRead help pls :)")
 
         timenow = datetime.now(timezone("Asia/Jakarta"))
-        embed = Embed(color=0xff69b4, description=text, timestamp=timenow)
-        embed.set_footer(text=f"By {ctx.author}")
+        embed = Embed(
+            color=0xff69b4,
+            description=text,
+            timestamp=timenow,
+            title=title
+        )
+        embed.set_footer(text=f"By {user}")
         await ctx.send(embed=embed)
-        await msg.delete()
 
 
-async def fetch_credentials(context, msg=None):
+async def fetch_credentials(context, user):
     """fetch user credentials."""
-    user = context.author
     text = ""
     is_cs = False
 
@@ -75,8 +116,6 @@ async def fetch_credentials(context, msg=None):
             text += WARN_TEXT
         else:
             await context.send(fail_text)
-            if msg:
-                await msg.delete()
             return None, None, None
 
     cht_id = secrt['secret']
@@ -91,8 +130,6 @@ async def fetch_credentials(context, msg=None):
     except NotFound:  # message deleted
         await SAVED_SECRET.delete_one({'_id': f"{user.id}"})  # delete from db
         await context.send(fail_text)
-        if msg:
-            await msg.delete()
         return None, None, None
 
     secret = data.replace(f"{BOT_PREFIX}auth ", "")
@@ -100,7 +137,7 @@ async def fetch_credentials(context, msg=None):
     return usr, sec, text
 
 
-async def login(context, user, password, msg=None):
+async def login(context, user, password):
     """send a login request to the url
     return data
         data = data(json) request from the url.
@@ -113,8 +150,6 @@ async def login(context, user, password, msg=None):
             if login.status != 200:  # wrong credentials
                 await context.send("**Login Failed\nI think that your credential is wrong.**"
                                 f"\nRecreate by {BOT_PREFIX}auth again")
-                if msg:
-                    await msg.delete()
                 return None
 
         async with session.get(url) as data:
