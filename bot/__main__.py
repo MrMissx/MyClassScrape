@@ -4,6 +4,7 @@ from importlib import import_module
 
 from bot import bot, BOT_TOKEN, BOT_PREFIX, LOGGER
 from bot.modules import ALL_MODULES
+from bot.utils import send_typing
 
 HELP_STRING = f"""
 my prefix is `{BOT_PREFIX}`
@@ -32,6 +33,7 @@ async def on_ready():
 
 
 @bot.command()
+@send_typing
 async def help(ctx):
     app = await bot.application_info()
     owner = app.owner

@@ -5,7 +5,7 @@ from discord import Embed, NotFound
 from pytz import timezone
 
 from bot import bot, BOT_PREFIX, CS_GUILD_ID, LOGGER
-from bot.utils import decrypt, formater, get_collection
+from bot.utils import decrypt, formater, get_collection, send_typing
 
 login_url = "https://myclass.apps.binus.ac.id/Auth/Login"
 url = "https://myclass.apps.binus.ac.id/Home/GetViconSchedule"
@@ -17,6 +17,7 @@ SAVED_SECRET = get_collection("CREDATA")
 
 
 @bot.command(aliases=['myclass', 'schedule'])
+@send_typing
 async def getclass(ctx, args: str=None):
     user = ctx.author
     usr , sec, text = await fetch_credentials(ctx, user)
@@ -27,23 +28,44 @@ async def getclass(ctx, args: str=None):
         elif args.lower() == "tomorrow":
             args = "1"
 
-    async with ctx.typing():    # send a typing status
-        schedule = await login(ctx, usr, sec)
-        if not schedule:
-            return
+    schedule = await login(ctx, usr, sec)
+    if not schedule:
+        return
 
-        if args is None:
-            dateold = ""
-            title = "**Class Schedule**"
-            for sched in schedule:
-                if len(text) > 1602:  # break if schedule to many
-                    break
-                date = sched["DisplayStartDate"]
-                if date != dateold:
-                    text += f"\n:calendar_spiral: **{date}**\n\n"
-                    dateold = date
+    if args is None:
+        dateold = ""
+        title = "**Class Schedule**"
+        for sched in schedule:
+            if len(text) > 1602:  # break if schedule to many
+                break
+            date = sched["DisplayStartDate"]
+            if date != dateold:
+                text += f"\n:calendar_spiral: **{date}**\n\n"
+                dateold = date
 
-                time = sched["StartTime"][:-3] + "-" + \
+            time = sched["StartTime"][:-3] + "-" + \
+                sched["EndTime"][:-3]  # get rid of :seconds
+            classcode = sched["ClassCode"]
+            classtype = sched["DeliveryMode"]
+            course = sched["CourseCode"] + " - " + sched["CourseTitleEn"]
+            week = sched["WeekSession"]
+            session = sched["CourseSessionNumber"]
+            meetingurl = None
+            if classtype == "VC":
+                # get zoom url if it's a VidCon
+                meetingurl = sched["MeetingUrl"]
+
+            text += formater(time, classcode, classtype,
+                            course, week, session, meetingurl)
+
+    elif args.isnumeric():
+        now = datetime.now(timezone("Asia/Jakarta")) + timedelta(days=int(args))
+        datewanted = now.strftime("%d %b %Y")  # dd MMM yyyy
+        title = f"**Schedule for {datewanted}**"
+        for sched in schedule:
+            dateclass = sched["DisplayStartDate"]
+            if datewanted in dateclass:
+                timeclass = sched["StartTime"][:-3] + "-" + \
                     sched["EndTime"][:-3]  # get rid of :seconds
                 classcode = sched["ClassCode"]
                 classtype = sched["DeliveryMode"]
@@ -52,52 +74,30 @@ async def getclass(ctx, args: str=None):
                 session = sched["CourseSessionNumber"]
                 meetingurl = None
                 if classtype == "VC":
-                    # get zoom url if it's a VidCon
-                    meetingurl = sched["MeetingUrl"]
+                    meetingurl = sched["MeetingUrl"]  # get zoom url if it's a VidCon
 
-                text += formater(time, classcode, classtype,
-                                course, week, session, meetingurl)
+                text += formater(timeclass, classcode, classtype,
+                            course, week, session, meetingurl)
 
-        elif args.isnumeric():
-            now = datetime.now(timezone("Asia/Jakarta")) + timedelta(days=int(args))
-            datewanted = now.strftime("%d %b %Y")  # dd MMM yyyy
-            title = f"**Schedule for {datewanted}**"
-            for sched in schedule:
-                dateclass = sched["DisplayStartDate"]
-                if datewanted in dateclass:
-                    timeclass = sched["StartTime"][:-3] + "-" + \
-                        sched["EndTime"][:-3]  # get rid of :seconds
-                    classcode = sched["ClassCode"]
-                    classtype = sched["DeliveryMode"]
-                    course = sched["CourseCode"] + " - " + sched["CourseTitleEn"]
-                    week = sched["WeekSession"]
-                    session = sched["CourseSessionNumber"]
-                    meetingurl = None
-                    if classtype == "VC":
-                        meetingurl = sched["MeetingUrl"]  # get zoom url if it's a VidCon
+        if WARN_TEXT in text:
+            temp = text.replace(WARN_TEXT, "")  # if use my creds
+            if temp is "":
+                text += "\nGreat you don't have a schedule at this date :grin:"
+        elif text is "":
+                text = "Great you don't have any schedule at this date :grin:"
 
-                    text += formater(timeclass, classcode, classtype,
-                                course, week, session, meetingurl)
+    else:
+        return await ctx.send("Unknown arguments\nRead help pls :)")
 
-            if WARN_TEXT in text:
-                temp = text.replace(WARN_TEXT, "")  # if use my creds
-                if temp is "":
-                    text += "\nGreat you don't have a schedule at this date :grin:"
-            elif text is "":
-                    text = "Great you don't have any schedule at this date :grin:"
-
-        else:
-            return await ctx.send("Unknown arguments\nRead help pls :)")
-
-        timenow = datetime.now(timezone("Asia/Jakarta"))
-        embed = Embed(
-            color=0xff69b4,
-            description=text,
-            timestamp=timenow,
-            title=title
-        )
-        embed.set_footer(text=f"By {user}")
-        await ctx.send(embed=embed)
+    timenow = datetime.now(timezone("Asia/Jakarta"))
+    embed = Embed(
+        color=0xff69b4,
+        description=text,
+        timestamp=timenow,
+        title=title
+    )
+    embed.set_footer(text=f"By {user}")
+    await ctx.send(embed=embed)
 
 
 async def fetch_credentials(context, user):

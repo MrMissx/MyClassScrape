@@ -1,13 +1,14 @@
 import discord
 
 from bot import bot, BOT_PREFIX
-from bot.utils import encrypt, get_collection
+from bot.utils import encrypt, get_collection, send_typing
 
 
 SAVED_SECRET = get_collection("CREDATA")
 
 
 @bot.command(aliases=['save'])
+@send_typing
 async def auth(ctx, cred: str = None):
     author = ctx.author
 
@@ -40,8 +41,8 @@ async def auth(ctx, cred: str = None):
     saved = await SAVED_SECRET.find_one({'_id': str(author.id)})
     if saved is None:  # new data
         await SAVED_SECRET.insert_one({'_id': str(author.id),
-                                       'secret': encrypt(str(msg_id))})
+                                        'secret': encrypt(str(msg_id))})
     else:  # update
         await SAVED_SECRET.find_one_and_update({'_id': str(author.id)},
-                                               {"$set": {'secret': encrypt(str(msg_id))}})
+                                                {"$set": {'secret': encrypt(str(msg_id))}})
     await ctx.send("Saved...\nTo delete the credentials just delete your message")

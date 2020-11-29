@@ -4,6 +4,7 @@ import os
 import requests
 
 from bot import bot, HEROKU_APP_NAME, HEROKU_API_KEY, LOGGER
+from bot.utils import send_typing
 
 from datetime import datetime
 from discord import Embed
@@ -12,6 +13,7 @@ from pytz import timezone
 
 
 @bot.command()
+@send_typing
 async def invite(ctx):
     embed = Embed(
         color=0xffb6c1,
@@ -20,12 +22,14 @@ async def invite(ctx):
 
 
 @bot.command()
+@send_typing
 async def ping(ctx):
     latency = bot.latency
     await ctx.send("Pong! {:.2f}ms".format(latency * 1000))
 
 
 @bot.command(aliases=['src'])
+@send_typing
 async def source(ctx):
     app = await bot.application_info()
     owner = app.owner
@@ -40,6 +44,7 @@ async def source(ctx):
 
 @commands.is_owner()
 @bot.command(aliases=['log'])
+@send_typing
 async def logs(ctx):
     try:
         Heroku = heroku3.from_key(HEROKU_API_KEY)
@@ -52,11 +57,12 @@ async def logs(ctx):
     fd = codecs.open("logs.txt", "r", encoding="utf-8")
     data = fd.read()
     key = (requests.post("https://nekobin.com/api/documents",
-                         json={"content": data}) .json() .get("result") .get("key"))
+                            json={"content": data}) .json() .get("result") .get("key"))
     url = f"https://nekobin.com/raw/{key}"
     timenow = datetime.now(timezone("Asia/Jakarta"))
-    embed = Embed(color=0xff0000,
-                  description=f"Bot log [here]({url})",
-                  timestamp=timenow)
+    embed = Embed(
+        color=0xff0000,
+        description=f"Bot log [here]({url})",
+        timestamp=timenow)
     await ctx.send(embed=embed)
     return os.remove("logs.txt")
