@@ -8,10 +8,11 @@ from bot import (
     bot,
     BOT_TOKEN,
     BOT_PREFIX,
-    SCHEDULE_CHANNEL,
-    TASK_MSG_PLACEHOLDER,
     DAILY_TASK,
-    LOGGER
+    DAILY_TASK_TIME,
+    LOGGER,
+    SCHEDULE_CHANNEL,
+    TASK_MSG_PLACEHOLDER
     )
 from bot.modules import ALL_MODULES
 from bot.modules.scraper import getclass
@@ -29,7 +30,7 @@ Below you can see all the commands I know.
 `source  `= link to my source code `alias[src]`.
 """
 
-DailyTask_time = time(hour=23)  # 11PM UTC
+DailyTask_time = time(hour=DAILY_TASK_TIME)  # in UTC default -> 23
 
 for module in ALL_MODULES:
     imported_module = import_module("bot.modules." + module)
