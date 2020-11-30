@@ -75,7 +75,7 @@ async def startup():
     if DAILY_TASK:
         # Bot task to run daily
         LOGGER.info("Running DAILY_TASK every {} UTC".format(DailyTask_time))
-        task = asyncio.create_task(DailyTask())
+        task = bot.loop.create_task(DailyTask())
         task.add_done_callback(task_exeption)
 
     LOGGER.info("Bot started")
