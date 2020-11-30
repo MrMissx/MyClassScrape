@@ -1,10 +1,20 @@
+import asyncio
 import discord
 
+from datetime import datetime, time, timedelta
 from importlib import import_module
 
-from bot import bot, BOT_TOKEN, BOT_PREFIX, LOGGER
+from bot import (
+    bot,
+    BOT_TOKEN,
+    BOT_PREFIX,
+    SCHEDULE_CHANNEL,
+    TASK_MSG_PLACEHOLDER,
+    DAILY_TASK,
+    LOGGER
+    )
 from bot.modules import ALL_MODULES
-from bot.utils import send_typing
+from bot.modules.scraper import getclass
 
 HELP_STRING = f"""
 my prefix is `{BOT_PREFIX}`
@@ -19,13 +29,13 @@ Below you can see all the commands I know.
 `source  `= link to my source code `alias[src]`.
 """
 
+DailyTask_time = time(hour=23)  # 11PM UTC
 
 for module in ALL_MODULES:
     imported_module = import_module("bot.modules." + module)
 
 
 @bot.command()
-@send_typing
 async def help(ctx):
     app = await bot.application_info()
     owner = app.owner
@@ -56,10 +66,51 @@ async def on_guild_join(guild):
 
 async def startup():
     await bot.wait_until_ready()
+    LOGGER.info("Setting up Bot status")
     activity = discord.Activity(
         name=f"BinusMaya | {BOT_PREFIX}help",
         type=discord.ActivityType.watching)
     await bot.change_presence(status=discord.Status.online, activity=activity)
+
+    if DAILY_TASK:
+        # Bot task to run daily
+        LOGGER.info("Running DAILY_TASK every {} UTC".format(DailyTask_time))
+        task = asyncio.create_task(DailyTask())
+        task.add_done_callback(task_exeption)
+
+    LOGGER.info("Bot started")
+
+
+async def _create_context(channel, message_id):
+    """Create a ctx from a channel message placeholder"""
+    channel = bot.get_channel(channel)
+    message = await channel.fetch_message(id=message_id)
+    return await bot.get_context(message)
+
+
+async def _schedule(ctx):
+    await getclass(ctx, args="now", is_scheduler=True)
+    LOGGER.info("Daily task complete")
+
+
+async def DailyTask():
+    """Create a daily task."""
+    while True:
+        now = datetime.utcnow()
+        date = now.date()
+        if now.time() > DailyTask_time:
+            date = now.date() + timedelta(days=1)
+        then = datetime.combine(date, DailyTask_time)
+        await discord.utils.sleep_until(then)
+        LOGGER.info("Running daily schedule task")
+        ctx = await _create_context(SCHEDULE_CHANNEL, TASK_MSG_PLACEHOLDER)
+        await _schedule(ctx)
+
+
+def task_exeption(task):
+    """Handle exception on scheduler task"""
+    if task.exception():
+        task.print_stack()
 
 
 if __name__ == "__main__":

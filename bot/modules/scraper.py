@@ -11,14 +11,16 @@ login_url = "https://myclass.apps.binus.ac.id/Auth/Login"
 url = "https://myclass.apps.binus.ac.id/Home/GetViconSchedule"
 fail_text = f"**No credentials found**\nCreate it with `{BOT_PREFIX}auth.`"
 WARN_TEXT = f"""**This is a default Schedule of LA04(my owner)!\nyour Schedule may vary.**
-            \nYou can `{BOT_PREFIX}auth` yourself to scrape your schedule."""
+            \nYou can `{BOT_PREFIX}auth` yourself to scrape your schedule.
+
+"""
 
 SAVED_SECRET = get_collection("CREDATA")
 
 
 @bot.command(aliases=['myclass', 'schedule'])
 @send_typing
-async def getclass(ctx, args: str=None):
+async def getclass(ctx, args: str=None, is_scheduler: bool=False):
     user = ctx.author
     usr , sec, text = await fetch_credentials(ctx, user)
 
@@ -61,7 +63,13 @@ async def getclass(ctx, args: str=None):
     elif args.isnumeric():
         now = datetime.now(timezone("Asia/Jakarta")) + timedelta(days=int(args))
         datewanted = now.strftime("%d %b %Y")  # dd MMM yyyy
-        title = f"**Schedule for {datewanted}**"
+        if args == "0":
+            title = "**Schedule for Today**"
+        elif args == "1":
+            title = "**Schedule for Tomorrow**"
+        else:
+            title = f"**Schedule for {datewanted}**"
+
         for sched in schedule:
             dateclass = sched["DisplayStartDate"]
             if datewanted in dateclass:
@@ -81,13 +89,16 @@ async def getclass(ctx, args: str=None):
 
         if WARN_TEXT in text:
             temp = text.replace(WARN_TEXT, "")  # if use my creds
-            if temp is "":
-                text += "\nGreat you don't have a schedule at this date :grin:"
-        elif text is "":
-                text = "Great you don't have any schedule at this date :grin:"
+            if temp == "":
+                text += "\nGreat No schedule at this date :grin:"
+        elif text == "":
+                text = "Great No schedule at this date :grin:"
 
     else:
         return await ctx.send("Unknown arguments\nRead help pls :)")
+
+    if is_scheduler:
+        user = "LA04"
 
     timenow = datetime.now(timezone("Asia/Jakarta"))
     embed = Embed(
@@ -107,7 +118,7 @@ async def fetch_credentials(context, user):
 
     secrt = await SAVED_SECRET.find_one({'_id': str(user.id)})
     if secrt is None:
-        if (context.guild and str(context.guild.id) == CS_GUILD_ID):  # CS LA04
+        if (context.guild and context.guild.id == CS_GUILD_ID):  # CS LA04
             LOGGER.info("CS Schedule request")
             app = await bot.application_info()
             owner = app.owner
