@@ -44,4 +44,4 @@ else:
 # disabling warning when getting logs
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 bot = commands.Bot(command_prefix=BOT_PREFIX)
-bot.remove_command('help')  # removing the default help
+bot.remove_command("help")  # removing the default help

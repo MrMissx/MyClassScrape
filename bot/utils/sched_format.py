@@ -1,4 +1,11 @@
-def formater(time, classcode, classtype, course, week, session, meetingurl=None):
+def formater(
+        time,
+        classcode,
+        classtype,
+        course,
+        week,
+        session,
+        meetingurl=None) -> str:
     output = (
         f"**Time :** {time}\n"
         f"**Class :** {classcode} - {classtype}\n"

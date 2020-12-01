@@ -1,4 +1,3 @@
-import asyncio
 import discord
 
 from datetime import datetime, time, timedelta
@@ -12,8 +11,8 @@ from bot import (
     DAILY_TASK_TIME,
     LOGGER,
     SCHEDULE_CHANNEL,
-    TASK_MSG_PLACEHOLDER
-    )
+    TASK_MSG_PLACEHOLDER,
+)
 from bot.modules import ALL_MODULES
 from bot.modules.scraper import getclass
 
@@ -42,9 +41,8 @@ async def help(ctx):
     owner = app.owner
     icon = owner.avatar_url_as(static_format="png")
     embed = discord.Embed(
-        color=0x9b59b6,
-        title="**Hello there!**",
-        description=HELP_STRING)
+        color=0x9B59B6, title="**Hello there!**", description=HELP_STRING
+    )
     embed.set_footer(text=f"Made with 💖 by {owner}", icon_url=icon)
     await ctx.send(embed=embed)
 
@@ -52,10 +50,11 @@ async def help(ctx):
 @bot.event
 async def on_guild_join(guild):
     embed = discord.Embed(
-        color=0x9b59b6,
+        color=0x9B59B6,
         title="**Hello there!**",
         description=f"Thank you For inviting me \
-                            \nYou can type `{BOT_PREFIX}help` to see my commands")
+                            \nYou can type `{BOT_PREFIX}help` to see my commands",
+    )
     for channel in guild.text_channels:
         if channel.permissions_for(guild.me).send_messages:
             await channel.send(embed=embed)

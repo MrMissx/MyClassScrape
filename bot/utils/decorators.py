@@ -1,5 +1,6 @@
 from functools import wraps
 
+
 def send_typing(coro):
     """Send typing status while processing the commands."""
 

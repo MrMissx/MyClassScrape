@@ -18,11 +18,11 @@ WARN_TEXT = f"""**This is a default Schedule of LA04(my owner)!\nyour Schedule m
 SAVED_SECRET = get_collection("CREDATA")
 
 
-@bot.command(aliases=['myclass', 'schedule'])
+@bot.command(aliases=["myclass", "schedule"])
 @send_typing
-async def getclass(ctx, args: str=None, is_scheduler: bool=False):
+async def getclass(ctx, args: str = None, is_scheduler: bool = False):
     user = ctx.author
-    usr , sec, text = await fetch_credentials(ctx, user)
+    usr, sec, text = await fetch_credentials(ctx, user)
 
     if args:
         if args.lower() in ["now", "today"]:
@@ -45,8 +45,9 @@ async def getclass(ctx, args: str=None, is_scheduler: bool=False):
                 text += f"\n:calendar_spiral: **{date}**\n\n"
                 dateold = date
 
-            time = sched["StartTime"][:-3] + "-" + \
-                sched["EndTime"][:-3]  # get rid of :seconds
+            time = (
+                sched["StartTime"][:-3] + "-" + sched["EndTime"][:-3]
+            )  # get rid of :seconds
             classcode = sched["ClassCode"]
             classtype = sched["DeliveryMode"]
             course = sched["CourseCode"] + " - " + sched["CourseTitleEn"]
@@ -57,11 +58,13 @@ async def getclass(ctx, args: str=None, is_scheduler: bool=False):
                 # get zoom url if it's a VidCon
                 meetingurl = sched["MeetingUrl"]
 
-            text += formater(time, classcode, classtype,
-                            course, week, session, meetingurl)
+            text += formater(
+                time, classcode, classtype, course, week, session, meetingurl
+            )
 
     elif args.isnumeric():
-        now = datetime.now(timezone("Asia/Jakarta")) + timedelta(days=int(args))
+        now = datetime.now(timezone("Asia/Jakarta")) + \
+            timedelta(days=int(args))
         datewanted = now.strftime("%d %b %Y")  # dd MMM yyyy
         if args == "0":
             title = "**Schedule for Today**"
@@ -73,8 +76,9 @@ async def getclass(ctx, args: str=None, is_scheduler: bool=False):
         for sched in schedule:
             dateclass = sched["DisplayStartDate"]
             if datewanted in dateclass:
-                timeclass = sched["StartTime"][:-3] + "-" + \
-                    sched["EndTime"][:-3]  # get rid of :seconds
+                timeclass = (
+                    sched["StartTime"][:-3] + "-" + sched["EndTime"][:-3]
+                )  # get rid of :seconds
                 classcode = sched["ClassCode"]
                 classtype = sched["DeliveryMode"]
                 course = sched["CourseCode"] + " - " + sched["CourseTitleEn"]
@@ -82,17 +86,18 @@ async def getclass(ctx, args: str=None, is_scheduler: bool=False):
                 session = sched["CourseSessionNumber"]
                 meetingurl = None
                 if classtype == "VC":
-                    meetingurl = sched["MeetingUrl"]  # get zoom url if it's a VidCon
+                    # get zoom url if it's a VidCon
+                    meetingurl = sched["MeetingUrl"]
 
                 text += formater(timeclass, classcode, classtype,
-                            course, week, session, meetingurl)
+                                 course, week, session, meetingurl)
 
         if WARN_TEXT in text:
             temp = text.replace(WARN_TEXT, "")  # if use my creds
             if temp == "":
                 text += "\nGreat No schedule at this date :grin:"
         elif text == "":
-                text = "Great No schedule at this date :grin:"
+            text = "Great No schedule at this date :grin:"
 
     else:
         return await ctx.send("Unknown arguments\nRead help pls :)")
@@ -102,11 +107,10 @@ async def getclass(ctx, args: str=None, is_scheduler: bool=False):
 
     timenow = datetime.now(timezone("Asia/Jakarta"))
     embed = Embed(
-        color=0xff69b4,
+        color=0xFF69B4,
         description=text,
         timestamp=timenow,
-        title=title
-    )
+        title=title)
     embed.set_footer(text=f"By {user}")
     await ctx.send(embed=embed)
 
@@ -116,20 +120,20 @@ async def fetch_credentials(context, user):
     text = ""
     is_cs = False
 
-    secrt = await SAVED_SECRET.find_one({'_id': str(user.id)})
+    secrt = await SAVED_SECRET.find_one({"_id": str(user.id)})
     if secrt is None:
-        if (context.guild and context.guild.id == CS_GUILD_ID):  # CS LA04
+        if context.guild and context.guild.id == CS_GUILD_ID:  # CS LA04
             LOGGER.info("CS Schedule request")
             app = await bot.application_info()
             owner = app.owner
-            secrt = await SAVED_SECRET.find_one({'_id': str(owner.id)})
+            secrt = await SAVED_SECRET.find_one({"_id": str(owner.id)})
             is_cs = True
             text += WARN_TEXT
         else:
             await context.send(fail_text)
             return None, None, None
 
-    cht_id = secrt['secret']
+    cht_id = secrt["secret"]
     try:
         dec = decrypt(cht_id)
         if is_cs:
@@ -139,7 +143,7 @@ async def fetch_credentials(context, user):
         data = data.content
 
     except NotFound:  # message deleted
-        await SAVED_SECRET.delete_one({'_id': f"{user.id}"})  # delete from db
+        await SAVED_SECRET.delete_one({"_id": f"{user.id}"})  # delete from db
         await context.send(fail_text)
         return None, None, None
 
@@ -154,13 +158,18 @@ async def login(context, user, password):
         data = data(json) request from the url.
     """
     async with aiohttp.ClientSession() as session:
-        async with session.get(login_url, params={
-            "Username": user,
-            "Password": password,
-        }) as login:
+        async with session.get(
+            login_url,
+            params={
+                "Username": user,
+                "Password": password,
+            },
+        ) as login:
             if login.status != 200:  # wrong credentials
-                await context.send("**Login Failed\nI think that your credential is wrong.**"
-                                f"\nRecreate by {BOT_PREFIX}auth again")
+                await context.send(
+                    "**Login Failed\nI think that your credential is wrong.**"
+                    f"\nRecreate by {BOT_PREFIX}auth again"
+                )
                 return None
 
         async with session.get(url) as data:
