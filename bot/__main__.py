@@ -1,5 +1,7 @@
 import discord
+import traceback
 
+from discord.ext.commands.context import Context
 from datetime import datetime, time, timedelta
 from importlib import import_module
 
@@ -64,6 +66,25 @@ async def on_guild_join(guild):
     await owner.send(f"Bot joined to **{guild.name}**")
 
 
+@bot.event
+async def on_command_error(ctx, error):
+    trace = traceback.format_exception(
+        type(error), error, error.__traceback__
+    )
+    err = "".join(trace)
+    message = (
+        f"An exception was raised while handling an update [{ctx.command}]\n\n"
+        f"{err}"
+    )
+    trigger = (
+        "I already reported to my owner... no personal thing stored except the error"
+        "\nhope this will fixed soon :)")
+    await ctx.send(f"```python\n{message}\n```" + trigger)
+    app = await bot.application_info()
+    owner = app.owner
+    await owner.send(f"```python\n{message}\n```")
+
+
 async def startup():
     await bot.wait_until_ready()
     LOGGER.info("Setting up Bot status")
@@ -81,7 +102,7 @@ async def startup():
     LOGGER.info("Bot started")
 
 
-async def _create_context(channel, message_id):
+async def _create_context(channel, message_id) -> Context:
     """Create a ctx from a channel message placeholder"""
     channel = bot.get_channel(channel)
     message = await channel.fetch_message(id=message_id)
