@@ -1,7 +1,8 @@
+import asyncio
 import discord
 import traceback
 
-from discord.ext.commands.context import Context
+from discord.ext.commands import context, errors
 from datetime import datetime, time, timedelta
 from importlib import import_module
 
@@ -68,6 +69,11 @@ async def on_guild_join(guild):
 
 @bot.event
 async def on_command_error(ctx, error):
+    if isinstance(error, errors.CommandNotFound):
+        msg = await ctx.send(error)
+        await asyncio.sleep(5)
+        await msg.delete()
+        return
     trace = traceback.format_exception(
         type(error), error, error.__traceback__
     )
@@ -102,7 +108,7 @@ async def startup():
     LOGGER.info("Bot started")
 
 
-async def _create_context(channel, message_id) -> Context:
+async def _create_context(channel, message_id) -> context.Context:
     """Create a ctx from a channel message placeholder"""
     channel = bot.get_channel(channel)
     message = await channel.fetch_message(id=message_id)
