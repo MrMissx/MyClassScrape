@@ -33,6 +33,7 @@ Below you can see all the commands I know.
 `auth    `= Save your credentials `alias[save]`
 `ping    `= Check my latency to Discord WebSocket.
 `source  `= link to my source code `alias[src]`.
+`sysinfo `= See my system info i'm running on.
 """
 
 DailyTask_time = time(hour=DAILY_TASK_TIME)  # in UTC default -> 23

@@ -3,4 +3,5 @@ discord.py
 dnspython
 motor
 pytz
+psutil
 urllib3
