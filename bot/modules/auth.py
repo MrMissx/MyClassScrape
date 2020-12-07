@@ -1,3 +1,5 @@
+"""Auth new user to database."""
+
 import discord
 
 from bot import bot, BOT_PREFIX
@@ -10,6 +12,7 @@ SAVED_SECRET = get_collection("CREDATA")
 @bot.command(aliases=["save"])
 @send_typing
 async def auth(ctx, cred: str = None):
+    """Authenticate new user."""
     author = ctx.author
 
     if cred is None:  # if no credential given

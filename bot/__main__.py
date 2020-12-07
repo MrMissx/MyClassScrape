@@ -1,10 +1,13 @@
+"""Bot startup"""
+
 import asyncio
-import discord
 import traceback
 
-from discord.ext.commands import context, errors
 from datetime import datetime, time, timedelta
 from importlib import import_module
+
+import discord
+from discord.ext.commands import context, errors
 
 from bot import (
     bot,
@@ -39,7 +42,8 @@ for module in ALL_MODULES:
 
 
 @bot.command()
-async def help(ctx):
+async def help(ctx):  # pylint: disable=redefined-builtin
+    """Send bot helper."""
     app = await bot.application_info()
     owner = app.owner
     icon = owner.avatar_url_as(static_format="png")
@@ -52,6 +56,7 @@ async def help(ctx):
 
 @bot.event
 async def on_guild_join(guild):
+    """Notify owner for joining guild."""
     embed = discord.Embed(
         color=0x9B59B6,
         title="**Hello there!**",
@@ -69,6 +74,7 @@ async def on_guild_join(guild):
 
 @bot.event
 async def on_command_error(ctx, error):
+    """Send an error message if something wrong."""
     if isinstance(error, errors.CommandNotFound):
         msg = await ctx.send(error)
         await asyncio.sleep(5)
@@ -92,6 +98,7 @@ async def on_command_error(ctx, error):
 
 
 async def startup():
+    """Task to run when starting up."""
     await bot.wait_until_ready()
     LOGGER.info("Setting up Bot status")
     activity = discord.Activity(
@@ -101,9 +108,8 @@ async def startup():
 
     if DAILY_TASK:
         # Bot task to run daily
-        LOGGER.info("Running DAILY_TASK every {} UTC".format(DailyTask_time))
-        task = bot.loop.create_task(DailyTask())
-        task.add_done_callback(task_exeption)
+        LOGGER.info("Running DAILY_TASK every %s UTC", DailyTask_time)
+        bot.loop.create_task(daily_task())
 
     LOGGER.info("Bot started")
 
@@ -116,11 +122,12 @@ async def _create_context(channel, message_id) -> context.Context:
 
 
 async def _schedule(ctx):
+    """Get schedule for daily task."""
     await getclass(ctx, args="now", is_scheduler=True)
     LOGGER.info("Daily task complete")
 
 
-async def DailyTask():
+async def daily_task():
     """Create a daily task."""
     while True:
         now = datetime.utcnow()
@@ -134,13 +141,7 @@ async def DailyTask():
         await _schedule(ctx)
 
 
-def task_exeption(task):
-    """Handle exception on scheduler task"""
-    if task.exception():
-        task.print_stack()
-
-
 if __name__ == "__main__":
-    LOGGER.info("Modules Loaded: " + str(ALL_MODULES))
+    LOGGER.info("Modules Loaded: %s", str(ALL_MODULES))
     bot.loop.create_task(startup())
     bot.run(BOT_TOKEN)

@@ -1,3 +1,6 @@
+# pylint: disable=R0913
+"""Format a schedule for easy reading."""
+
 def formater(
         time,
         classcode,
@@ -6,6 +9,7 @@ def formater(
         week,
         session,
         meetingurl=None) -> str:
+    """Format schedule text"""
     output = (
         f"**Time :** {time}\n"
         f"**Class :** {classcode} - {classtype}\n"

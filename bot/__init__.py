@@ -1,3 +1,5 @@
+"""Bot intialization."""
+
 import os
 import logging
 import urllib3
@@ -6,9 +8,13 @@ from discord.ext import commands
 
 
 logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler("ClassScraper.log"),
+        logging.StreamHandler(),
+    ],
     level=logging.INFO)
-
+logging.getLogger("discord").setLevel(logging.WARNING)
 LOGGER = logging.getLogger(__name__)
 LOGGER.info("Starting bot")
 
@@ -22,8 +28,6 @@ if ENV:
     DAILY_TASK = bool(os.environ.get("DAILY_TASK", False))
     DAILY_TASK_TIME = int(os.environ.get("DAILY_TASK_TIME", 23))  # UTC
     DB_URI = os.environ.get("DATABASE_URL", None)
-    HEROKU_API_KEY = os.environ.get("HEROKU_API_KEY", None)
-    HEROKU_APP_NAME = os.environ.get("HEROKU_APP_NAME", None)
     KEY = os.environ.get("KEY", None)
     SCHEDULE_CHANNEL = int(os.environ.get("SCHEDULE_CHANNEL", None))
     TASK_MSG_PLACEHOLDER = int(os.environ.get("TASK_MSG_PLACEHOLDER", None))

@@ -1,3 +1,5 @@
+"""Bot decorators."""
+
 from functools import wraps
 
 

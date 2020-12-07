@@ -1,14 +1,16 @@
-import aiohttp
+"""Scrape from Binus website."""
 
 from datetime import datetime, timedelta
-from discord import Embed, NotFound
+import aiohttp
 from pytz import timezone
+
+from discord import Embed, NotFound
 
 from bot import bot, BOT_PREFIX, CS_GUILD_ID, LOGGER
 from bot.utils import decrypt, formater, get_collection, send_typing
 
-login_url = "https://myclass.apps.binus.ac.id/Auth/Login"
-url = "https://myclass.apps.binus.ac.id/Home/GetViconSchedule"
+LOGIN_URL = "https://myclass.apps.binus.ac.id/Auth/Login"
+URL = "https://myclass.apps.binus.ac.id/Home/GetViconSchedule"
 fail_text = f"**No credentials found**\nCreate it with `{BOT_PREFIX}auth.`"
 WARN_TEXT = f"""**This is a default Schedule of LA04(my owner)!\nyour Schedule may vary.**
             \nYou can `{BOT_PREFIX}auth` yourself to scrape your schedule.
@@ -21,6 +23,8 @@ SAVED_SECRET = get_collection("CREDATA")
 @bot.command(aliases=["myclass", "schedule"])
 @send_typing
 async def getclass(ctx, args: str = None, is_scheduler: bool = False):
+    """Get the schedule for the user who trigger this command."""
+    # pylint: disable=R0914, R0912, R0915
     user = ctx.author
     usr, sec, text = await fetch_credentials(ctx, user)
 
@@ -159,19 +163,19 @@ async def login(context, user, password):
     """
     async with aiohttp.ClientSession() as session:
         async with session.get(
-            login_url,
+            LOGIN_URL,
             params={
                 "Username": user,
                 "Password": password,
             },
-        ) as login:
-            if login.status != 200:  # wrong credentials
+        ) as auth:
+            if auth.status != 200:  # wrong credentials
                 await context.send(
                     "**Login Failed\nI think that your credential is wrong.**"
                     f"\nRecreate by {BOT_PREFIX}auth again"
                 )
                 return None
 
-        async with session.get(url) as data:
+        async with session.get(URL) as data:
             result = await data.json()
     return result

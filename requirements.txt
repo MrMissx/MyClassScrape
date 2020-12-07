@@ -1,6 +1,6 @@
 cryptography
 discord.py
-heroku3
 dnspython
 motor
 pytz
+urllib3

@@ -1,3 +1,5 @@
+"""Database moudle."""
+
 from motor.motor_asyncio import AsyncIOMotorClient
 from motor.core import AgnosticClient, AgnosticDatabase, AgnosticCollection
 
