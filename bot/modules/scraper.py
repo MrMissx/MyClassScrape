@@ -11,7 +11,7 @@ from bot.utils import decrypt, formater, get_collection, send_typing
 
 LOGIN_URL = "https://myclass.apps.binus.ac.id/Auth/Login"
 URL = "https://myclass.apps.binus.ac.id/Home/GetViconSchedule"
-fail_text = f"**No credentials found**\nCreate it with `{BOT_PREFIX}auth.`"
+FAIL_TEXT = f"**No credentials found**\nCreate it with `{BOT_PREFIX}auth.`"
 WARN_TEXT = f"""**This is a default Schedule of LA04(my owner)!\nyour Schedule may vary.**
             \nYou can `{BOT_PREFIX}auth` yourself to scrape your schedule.
 
@@ -134,7 +134,7 @@ async def fetch_credentials(context, user):
             is_cs = True
             text += WARN_TEXT
         else:
-            await context.send(fail_text)
+            await context.send(FAIL_TEXT)
             return None, None, None
 
     cht_id = secrt["secret"]
@@ -148,7 +148,7 @@ async def fetch_credentials(context, user):
 
     except NotFound:  # message deleted
         await SAVED_SECRET.delete_one({"_id": f"{user.id}"})  # delete from db
-        await context.send(fail_text)
+        await context.send(FAIL_TEXT)
         return None, None, None
 
     secret = data.replace(f"{BOT_PREFIX}auth ", "")
@@ -163,11 +163,11 @@ async def login(context, user, password):
     """
     async with aiohttp.ClientSession() as session:
         async with session.get(
-            LOGIN_URL,
-            params={
-                "Username": user,
-                "Password": password,
-            },
+                LOGIN_URL,
+                params={
+                    "Username": user,
+                    "Password": password,
+                },
         ) as auth:
             if auth.status != 200:  # wrong credentials
                 await context.send(

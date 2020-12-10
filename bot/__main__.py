@@ -36,7 +36,7 @@ Below you can see all the commands I know.
 `sysinfo `= See my system info i'm running on.
 """
 
-DailyTask_time = time(hour=DAILY_TASK_TIME)  # in UTC default -> 23
+DT_TIME = time(hour=DAILY_TASK_TIME)  # in UTC default -> 23
 
 for module in ALL_MODULES:
     imported_module = import_module("bot.modules." + module)
@@ -109,7 +109,7 @@ async def startup():
 
     if DAILY_TASK:
         # Bot task to run daily
-        LOGGER.info("Running DAILY_TASK every %s UTC", DailyTask_time)
+        LOGGER.info("Running DAILY_TASK every %s UTC", DT_TIME)
         bot.loop.create_task(daily_task())
 
     LOGGER.info("Bot started")
@@ -133,9 +133,9 @@ async def daily_task():
     while True:
         now = datetime.utcnow()
         date = now.date()
-        if now.time() > DailyTask_time:
+        if now.time() > DT_TIME:
             date = now.date() + timedelta(days=1)
-        then = datetime.combine(date, DailyTask_time)
+        then = datetime.combine(date, DT_TIME)
         await discord.utils.sleep_until(then)
         LOGGER.info("Running daily schedule task")
         ctx = await _create_context(SCHEDULE_CHANNEL, TASK_MSG_PLACEHOLDER)
