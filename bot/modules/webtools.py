@@ -2,10 +2,10 @@
 
 import codecs
 import platform
+import sys
 from datetime import datetime
-from platform import python_version
+import psutil
 import aiohttp
-from psutil import boot_time, cpu_percent, disk_usage, virtual_memory
 from pytz import timezone
 
 from discord import Embed, __version__
@@ -57,33 +57,59 @@ async def source(ctx):
 @send_typing
 async def sysinfo(ctx):
     """Send bot system information."""
-    uptime = datetime.fromtimestamp(boot_time()).strftime(
+    uptime = datetime.fromtimestamp(psutil.boot_time()).strftime(
         "%Y-%m-%d %H:%M:%S"
     )
-    status = "**========[ SYSTEM INFO ]========**\n"
-    status += "**System uptime:** " + str(uptime) + "\n"
+    status = "**System uptime : ** " + str(uptime) + "\n"
 
     uname = platform.uname()
-    status += "**System:** " + str(uname.system) + "\n"
-    status += "**Node name:** " + str(uname.node) + "\n"
-    status += "**Release:** " + str(uname.release) + "\n"
-    status += "**Version:** " + str(uname.version) + "\n"
-    status += "**Machine:** " + str(uname.machine) + "\n"
-    status += "**Processor:** " + str(uname.processor) + "\n\n"
+    # System Info
+    status += "**System : ** " + str(uname.system) + "\n"
+    status += "**Kernel : ** " + str(uname.release) + "\n"
+    status += "**Version : ** " + str(uname.version) + "\n"
+    status += "**Machine : ** " + str(uname.machine) + "\n"
+    status += "**Processor : ** " + str(uname.processor) + "\n\n"
 
-    mem = virtual_memory()
-    cpu = cpu_percent()
-    disk = disk_usage("/")
-    status += "**CPU usage:** " + str(cpu) + " %\n"
-    status += "**Ram usage:** " + str(mem[2]) + " %\n"
-    status += "**Storage used:** " + str(disk[3]) + " %\n\n"
-    status += "**Python version:** " + python_version() + "\n"
-    status += "**Discord.py version:** " + str(__version__) + ""
+    # CPU info
+    status += "**CPU Info**\n"
+    status += "**Physical cores : **" + str(psutil.cpu_count(logical=False))+ "\n"
+    status += "**Total cores : **" + str(psutil.cpu_count(logical=True))+ "\n"
+    status += "**Total cores : **" + str(psutil.cpu_count(logical=True))+ "\n"
+    status += "**CPU Usage:**\n"
+    for i, percentage in enumerate(psutil.cpu_percent(percpu=True)):
+        status += f"**× Core {i}  **: {percentage}%\n"
+    status += "**Total Usage : **" + str(psutil.cpu_percent())+"%\n\n"
+
+    # Memory info
+    svmem = psutil.virtual_memory()
+    status += "**Memory Info**\n"
+    status += "**Total : **" + str(await get_size(svmem.total)) +"\n"
+    status += "**Used : **" + str(await get_size(svmem.used)) +"\n"
+    status += f"**Available : ** {str(await get_size(svmem.available))} ({svmem.percent}%)\n\n"
+
+    # Bandwith info
+    status += "**Bandwith Info**\n"
+    status += "**Upload : **" + str(await get_size(psutil.net_io_counters().bytes_sent)) +"\n"
+    status += "**Upload : **" + str(await get_size(psutil.net_io_counters().bytes_recv)) +"\n"
+    status += "**Storage used:** " + str(psutil.disk_usage("/")[3]) + " %\n\n"
+
+    status += "**Lib version**\n"
+    status += "**Python version:** " + str(sys.version) + "\n"
+    status += "**Discord.py version:** " + str(__version__)
 
     embed = Embed(
-        color=0xF494ce, description=status
+        color=0xF494ce, description=status, title="**SYSTEM INFO**",
     )
     await ctx.send(embed=embed)
+
+
+async def get_size(byte, suffix="B"):
+    """Get human readable format."""
+    factor = 1024
+    for unit in ["", "K", "M", "G", "T", "P"]:
+        if byte < factor:
+            return f"{byte:.2f}{unit}{suffix}"
+        byte /= factor
 
 
 @commands.is_owner()
@@ -98,8 +124,8 @@ async def logs(ctx):
         data = log_file.read()
     async with aiohttp.ClientSession() as session:
         async with session.post(
-            "https://nekobin.com/api/documents",
-            json={"content": data}
+                "https://nekobin.com/api/documents",
+                json={"content": data},
         ) as res:
             if res.status != 200:
                 response = await res.json()
