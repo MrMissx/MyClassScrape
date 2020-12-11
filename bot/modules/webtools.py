@@ -46,10 +46,10 @@ async def source(ctx):
     owner = app.owner
     icon = owner.avatar_url_as(static_format="png")
     text = (
-        "[Here](https://github.com/keselekpermen69/MyClassScrape) My source code.\n"
-        f"You can contact [my owner](https://discord.com/users/{owner.id}) if you wan't to Help :)")
+        "[Here](https://github.com/keselekpermen69/MyClassScrape) my source code.\n"
+        "Feel free to contribute there :)")
     embed = Embed(color=0xFFB6C1, description=text)
-    embed.set_footer(text=owner, icon_url=icon)
+    embed.set_footer(text=f"by {owner}", icon_url=icon)
     await ctx.send(embed=embed)
 
 
@@ -84,13 +84,13 @@ async def sysinfo(ctx):
     svmem = psutil.virtual_memory()
     status += "**Memory Info**\n"
     status += "**Total : **" + str(await get_size(svmem.total)) +"\n"
-    status += "**Used : **" + str(await get_size(svmem.used)) +"\n"
-    status += f"**Available : ** {str(await get_size(svmem.available))} ({svmem.percent}%)\n\n"
+    status += f"**Used : ** {str(await get_size(svmem.used))} ({svmem.percent}%)\n"
+    status += "**Available : **" + str(await get_size(svmem.available)) + "\n\n"
 
     # Bandwith info
     status += "**Bandwith Info**\n"
     status += "**Upload : **" + str(await get_size(psutil.net_io_counters().bytes_sent)) +"\n"
-    status += "**Upload : **" + str(await get_size(psutil.net_io_counters().bytes_recv)) +"\n"
+    status += "**Download : **" + str(await get_size(psutil.net_io_counters().bytes_recv)) +"\n"
     status += "**Storage used:** " + str(psutil.disk_usage("/")[3]) + " %\n\n"
 
     status += "**Lib version**\n"
