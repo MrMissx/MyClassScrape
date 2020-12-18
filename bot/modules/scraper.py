@@ -6,7 +6,7 @@ from pytz import timezone
 
 from discord import Embed, NotFound
 
-from bot import bot, BOT_PREFIX, CS_GUILD_ID, LOGGER
+from bot import bot, BOT_PREFIX, DEF_GUILD_ID, LOGGER
 from bot.utils import decrypt, formater, get_collection, send_typing
 
 LOGIN_URL = "https://myclass.apps.binus.ac.id/Auth/Login"
@@ -129,8 +129,8 @@ async def fetch_credentials(context, user):
 
     secrt = await SAVED_SECRET.find_one({"_id": str(user.id)})
     if secrt is None:
-        if context.guild and context.guild.id == CS_GUILD_ID:  # CS LA04
-            LOGGER.info("CS Schedule request")
+        if context.guild and context.guild.id == DEF_GUILD_ID:
+            LOGGER.info("Default guild schedule request")
             app = await bot.application_info()
             owner = app.owner
             secrt = await SAVED_SECRET.find_one({"_id": str(owner.id)})

@@ -2,6 +2,7 @@ cryptography
 discord.py
 dnspython
 motor
-pytz
 psutil
+pytz
+python-dotenv
 urllib3
