@@ -51,4 +51,5 @@ async def auth(ctx, cred: str = None):
         await SAVED_SECRET.find_one_and_update(
             {"_id": str(author.id)}, {"$set": {"secret": encrypt(str(msg_id))}}
         )
-    await ctx.send("Saved...\nTo delete the credentials just delete your message")
+    await ctx.send("Saved\nTo delete your credentials just delete the message i react with \u2705")
+    await ctx.message.add_reaction("\u2705")
