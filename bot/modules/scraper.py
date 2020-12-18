@@ -28,6 +28,9 @@ async def getclass(ctx, args: str = None, is_scheduler: bool = False):
     user = ctx.author
     usr, sec, text = await fetch_credentials(ctx, user)
 
+    if (usr or sec) is None:
+        return
+
     if args:
         if args.lower() in ["now", "today"]:
             args = "0"
