@@ -1,6 +1,7 @@
 """Bot intialization."""
 
 import os
+import ast
 import logging
 import urllib3
 from dotenv import load_dotenv
@@ -25,7 +26,7 @@ BOT_TOKEN = os.environ.get("BOT_TOKEN")
 DB_URI = os.environ.get("DATABASE_URL")
 KEY = os.environ.get("KEY")
 DEF_GUILD_ID = int(os.environ.get("DEF_GUILD_ID")) or None
-DAILY_TASK = bool(os.environ.get("DAILY_TASK") or False)
+DAILY_TASK = ast.literal_eval(os.environ.get("DAILY_TASK") or "False")
 DAILY_TASK_TIME = int(os.environ.get("DAILY_TASK_TIME") or 0)  # UTC
 SCHEDULE_CHANNEL = int(os.environ.get("SCHEDULE_CHANNEL") or 0)
 TASK_MSG_PLACEHOLDER = int(os.environ.get("TASK_MSG_PLACEHOLDER") or 0)
