@@ -13,6 +13,7 @@ from bot import (
     bot,
     BOT_TOKEN,
     BOT_PREFIX,
+    CUSTOM_STATUS,
     DAILY_TASK,
     DAILY_TASK_TIME,
     LOGGER,
@@ -102,8 +103,11 @@ async def startup():
     """Task to run when starting up."""
     await bot.wait_until_ready()
     LOGGER.info("Setting up Bot status")
+    status = f"BinusMaya | {BOT_PREFIX}help"
+    if CUSTOM_STATUS:
+        status = CUSTOM_STATUS
     activity = discord.Activity(
-        name=f"BinusMaya | {BOT_PREFIX}help",
+        name=status,
         type=discord.ActivityType.watching)
     await bot.change_presence(status=discord.Status.online, activity=activity)
 

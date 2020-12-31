@@ -25,6 +25,7 @@ BOT_PREFIX = os.environ.get("BOT_PREFIX")
 BOT_TOKEN = os.environ.get("BOT_TOKEN")
 DB_URI = os.environ.get("DATABASE_URL")
 KEY = os.environ.get("KEY")
+CUSTOM_STATUS = os.environ.get("CUSTOM_STATUS" or None)
 DEF_GUILD_ID = int(os.environ.get("DEF_GUILD_ID")) or None
 DAILY_TASK = ast.literal_eval(os.environ.get("DAILY_TASK") or "False")
 DAILY_TASK_TIME = int(os.environ.get("DAILY_TASK_TIME") or 0)  # UTC
