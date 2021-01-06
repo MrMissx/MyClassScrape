@@ -110,7 +110,7 @@ async def getclass(ctx, args: str = None, is_scheduler: bool = False):
         return await ctx.send("Unknown arguments\nRead help pls :)")
 
     if is_scheduler:
-        user = "LA04"
+        user = "Auto-Scheduler"
 
     timenow = datetime.now(timezone("Asia/Jakarta"))
     embed = Embed(
