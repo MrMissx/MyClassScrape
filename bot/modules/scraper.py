@@ -1,9 +1,9 @@
 """Scrape from Binus website."""
 
 from datetime import datetime, timedelta
+
 import aiohttp
 from pytz import timezone
-
 from discord import Embed, NotFound
 
 from bot import bot, BOT_PREFIX, DEF_GUILD_ID, LOGGER
@@ -165,17 +165,23 @@ async def login(context, user, password):
         data = data(json) request from the url.
     """
     async with aiohttp.ClientSession() as session:
-        async with session.get(
+        async with session.post(
                 LOGIN_URL,
-                params={
+                json={
                     "Username": user,
                     "Password": password,
                 },
         ) as auth:
-            if auth.status != 200:  # wrong credentials
+            if auth.status != 200:
                 await context.send(
-                    "**Login Failed\nI think that your credential is wrong.**"
-                    f"\nRecreate by {BOT_PREFIX}auth again"
+                    "**Login Failed!\nThis most likely caused by server issue.**"
+                )
+                return None
+            res = await auth.json()
+            if not res["Status"]:
+                await context.send(
+                    f"**Login Failed.\n**"
+                    f"Server response: \"{res['Message']}\""
                 )
                 return None
 
