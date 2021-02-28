@@ -1,6 +1,5 @@
 """Bot startup"""
 
-import asyncio
 import traceback
 
 from datetime import datetime, time, timedelta
@@ -29,12 +28,20 @@ my prefix is `{BOT_PREFIX}`
 Below you can see all the commands I know.
 
 `help    `= Display this help menu.
-`getclass`= Get your class schedule `alias[myclass, schedule]`.
+`getclass <args>`= Get your class schedule `alias[myclass, schedule]`.
 `invite  `= Get my invite link.
 `auth    `= Save your credentials `alias[save]`
 `ping    `= Check my latency to Discord WebSocket.
 `source  `= link to my source code `alias[src]`.
 `sysinfo `= See my system info i'm running on.
+
+**Notes:**
+You can fetch specific date with getclass command e.g.:
+`{BOT_PREFIX}getclass now` -> fetch today's schedule.
+avaliable args : today, now, tomorrow\n
+You can also use it with numbers *(starts from 0) e.g.:
+`{BOT_PREFIX}getclass 1`-> fetch tomorrow's schedule.
+0 = today; 1 = tomorrow; 2 = day after tomorrow; etc.
 """
 
 DT_TIME = time(hour=DAILY_TASK_TIME)  # in UTC default -> 23
