@@ -78,10 +78,7 @@ async def on_guild_join(guild):
 async def on_command_error(ctx, error):
     """Send an error message if something wrong."""
     if isinstance(error, errors.CommandNotFound):
-        msg = await ctx.send(error)
-        await asyncio.sleep(5)
-        await msg.delete()
-        return
+        return  # don't flood on unhandled command
     trace = traceback.format_exception(
         type(error), error, error.__traceback__
     )
