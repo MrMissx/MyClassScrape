@@ -31,7 +31,7 @@ async def auth(ctx, cred: str = None):
         )
         await author.send(embed=embed)
         if ctx.guild is not None:  # dont send if in PM's
-            await ctx.send("I've send the help on PM's :)")
+            await ctx.reply("This command only available on PMs!\nI've send help on your PM.")
         return
 
     try:  # just checking the format
@@ -51,5 +51,5 @@ async def auth(ctx, cred: str = None):
         await SAVED_SECRET.find_one_and_update(
             {"_id": str(author.id)}, {"$set": {"secret": encrypt(str(msg_id))}}
         )
-    await ctx.send("Saved\nTo delete your credentials just delete the message i react with \u2705")
+    await ctx.reply("Saved\nTo delete your credentials just delete the message i reply")
     await ctx.message.add_reaction("\u2705")
