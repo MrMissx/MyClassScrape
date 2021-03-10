@@ -19,6 +19,7 @@ async def auth(ctx, cred: str = None):
         text = (
             f"`{BOT_PREFIX}auth <username>$<password>`"
             "\n\n*username without @binus.ac.id*"
+            "\ne.g: MyClassScraper$12345678"
             "\n\n**disclaimer:** This bot doesn't save any of your credentials! "
             "It only get the message_id and encrypt it. As long as the message isn't "
             f"deleted you can use `{BOT_PREFIX}getclass` command. To delete your "
@@ -36,20 +37,21 @@ async def auth(ctx, cred: str = None):
 
     try:  # just checking the format
         cred.replace(f"{BOT_PREFIX}auth ", "")
-        _, _ = cred.split("$")
+        raw = cred.split("$")
+        if len(raw) > 2:  # Handle if password contains separator character
+            _ = raw[0]
+            _ = "$".join(raw[1:])
+        else:
+            _, _ = raw
     except ValueError:
         await ctx.send("Please send your credential like the format given")
         return
 
     msg_id = ctx.message.id
-    saved = await SAVED_SECRET.find_one({"_id": str(author.id)})
-    if saved is None:  # new data
-        await SAVED_SECRET.insert_one(
-            {"_id": str(author.id), "secret": encrypt(str(msg_id))}
-        )
-    else:  # update
-        await SAVED_SECRET.find_one_and_update(
-            {"_id": str(author.id)}, {"$set": {"secret": encrypt(str(msg_id))}}
-        )
+    await SAVED_SECRET.update_one(
+        {"_id": str(author.id)},
+        {"$set": {"secret": encrypt(str(msg_id))}},
+        upsert=True
+    )
     await ctx.reply("Saved\nTo delete your credentials just delete the message i reply")
     await ctx.message.add_reaction("\u2705")

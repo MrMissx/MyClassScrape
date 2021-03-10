@@ -155,7 +155,12 @@ async def fetch_credentials(context, user):
         return None, None, None
 
     secret = data.replace(f"{BOT_PREFIX}auth ", "")
-    usr, sec = secret.split("$")
+    raw_text = secret.split("$")
+    if len(raw_text) > 2:  # handle if password contain seperator character
+        usr = raw_text[0]
+        sec = "$".join(raw_text[1:])
+    else:
+        usr, sec = raw_text
     return usr, sec, text
 
 
