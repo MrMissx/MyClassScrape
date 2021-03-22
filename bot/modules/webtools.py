@@ -21,11 +21,7 @@ async def invite(ctx):
     """Send an invite link of this bot."""
     embed = Embed(
         color=0xFFB6C1,
-        description=(
-            "[Here My invite link]"
-            "(https://discord.com/oauth2/authorize?"
-            "client_id=775903023821881374&permissions=522304&scope=bot)"
-            ),
+        description=("http://mrmiss.wtf/MyClassScrape"),
     )
     await ctx.send(embed=embed)
 
