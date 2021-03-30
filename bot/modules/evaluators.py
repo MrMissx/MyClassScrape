@@ -1,6 +1,9 @@
 import re
 import sys
 import asyncio
+from getpass import getuser
+
+from discord.ext import commands
 
 from bot import bot
 from bot.utils import send_typing
@@ -15,8 +18,11 @@ async def evaluate(ctx, *, expression: str = None):
         else:
             return await ctx.send("Give me some expression to evaluate!")
     expression = await parse_text(expression.strip())
-    if await check_expresison(expression):
-        return await ctx.send("**Unpermitted import!**")
+    if await check_expresison(ctx, expression):
+        return await ctx.send(
+            "**Unpermitted import!**\n"
+            "Your expresison contain sensitive method to me."
+            "Only my owner can do that")
     process = await asyncio.create_subprocess_exec(
         sys.executable,
         '-c',
@@ -24,15 +30,46 @@ async def evaluate(ctx, *, expression: str = None):
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE)
     stdout, stderr = await process.communicate()
-    result = str(stdout.decode().strip()) + str(stderr.decode().strip())
+
+    if stdout:
+        result = f"**[stdout]**\n```{stdout.decode().strip()}```"
+    if stderr:
+        result = f"**[stderr]**\n```{stderr.decode().strip()}```"
+
     if result:
-        await ctx.send(f"```\n{result}\n```")  # send as codeblock
+        await ctx.send(result)
     else:
-        await ctx.send("Expression returned False/None")
+        await ctx.send("Expression result is False/None")
 
 
-async def check_expresison(text) -> bool:
+@commands.is_owner()
+@bot.command(aliases=["term"])
+@send_typing
+async def terminal(ctx, *, command: str = None):
+    """Owner only commands."""
+    if not command:
+        if ctx.message.reference:  # if reply to a command
+            command = ctx.message.reference.resolved.content
+        else:
+            return await ctx.send("Give me some command to execute!")
+    command = await parse_text(command.strip())
+    process = await asyncio.create_subprocess_shell(
+        command,
+        stdout=asyncio.subprocess.PIPE,
+        stderr=asyncio.subprocess.PIPE)
+    stdout, stderr = await process.communicate()
+
+    result = str(stdout.decode().strip()) + str(stderr.decode().strip())
+    user = getuser() + "@" + str(bot.user.name)
+    await ctx.send(f"```{user}:~$ {command} \n{result}```")
+
+
+async def check_expresison(ctx, text) -> bool:
     """ Check sensitive expression """
+    app = await bot.application_info()
+    if ctx.author.id == app.owner.id:
+        return False  # Owner can do everything
+
     match = re.search(r"(from|import) (bot|os)|SAVED_SECRET", text)
     return bool(match)
 
