@@ -31,6 +31,7 @@ async def evaluate(ctx, *, expression: str = None):
         stderr=asyncio.subprocess.PIPE)
     stdout, stderr = await process.communicate()
 
+    result = None
     if stdout:
         result = f"**[stdout]**\n```{stdout.decode().strip()}```"
     if stderr:
