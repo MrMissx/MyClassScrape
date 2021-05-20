@@ -21,7 +21,7 @@ async def invite(ctx):
     """Send an invite link of this bot."""
     embed = Embed(
         color=0xFFB6C1,
-        description=("http://mrmiss.wtf/MyClassScrape"),
+        description=("http://mrmiss.me/MyClassScrape"),
     )
     await ctx.send(embed=embed)
 

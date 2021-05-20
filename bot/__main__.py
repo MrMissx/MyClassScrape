@@ -43,7 +43,7 @@ You can also use it with numbers *(starts from 0) e.g.:
 `{BOT_PREFIX}getclass 1`-> fetch tomorrow's schedule.
 0 = today; 1 = tomorrow; 2 = day after tomorrow; etc.
 
-You can invite me at http://mrmiss.wtf/MyClassScrape.
+You can invite me at http://mrmiss.me/MyClassScrape.
 """
 
 DT_TIME = time(hour=DAILY_TASK_TIME)  # in UTC default -> 23
