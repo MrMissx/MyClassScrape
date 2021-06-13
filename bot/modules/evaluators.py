@@ -32,15 +32,12 @@ async def evaluate(ctx, *, expression: str = None):
     stdout, stderr = await process.communicate()
 
     result = None
-    if stdout:
-        result = f"**[stdout]**\n```{stdout.decode().strip()}```"
     if stderr:
         result = f"**[stderr]**\n```{stderr.decode().strip()}```"
+    if stdout:
+        result = f"**[stdout]**\n```{stdout.decode().strip()}```"
 
-    if result:
-        await ctx.send(result)
-    else:
-        await ctx.send("Expression result is False/None")
+    await ctx.send(result if result else "Expression result is False/None")
 
 
 @commands.is_owner()
