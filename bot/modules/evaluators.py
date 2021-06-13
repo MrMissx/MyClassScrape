@@ -1,6 +1,8 @@
+import io
 import re
 import sys
 import asyncio
+import traceback
 from getpass import getuser
 
 from discord.ext import commands
@@ -60,6 +62,45 @@ async def terminal(ctx, *, command: str = None):
     result = str(stdout.decode().strip()) + str(stderr.decode().strip())
     user = getuser() + "@" + str(bot.user.name)
     await ctx.send(f"```{user}:~$ {command} \n{result}```")
+
+
+@commands.is_owner()
+@bot.command(aliases=["exec"])
+@send_typing
+async def execute(ctx, *, expression: str = None):
+    if not expression:
+        if ctx.message.reference:  # if reply to an expression
+            expression = ctx.message.reference.resolved.content
+        else:
+            return await ctx.send("Give me some expression to evaluate!")
+    expression = await parse_text(expression.strip())
+
+    old_stderr = sys.stderr
+    old_stdout = sys.stdout
+    redirected_output = sys.stdout = io.StringIO()
+    redirected_error = sys.stderr = io.StringIO()
+    stdout, stderr, exc = None, None, None
+
+    try:
+        returned = await aexec(ctx, expression)
+    except Exception:  # pylint: disable=broad-except
+        exc = traceback.format_exc()
+
+    stdout = redirected_output.getvalue().strip()
+    stderr = redirected_error.getvalue().strip()
+    sys.stdout = old_stdout
+    sys.stderr = old_stderr
+
+    result = exc or stderr or stdout or returned
+    await ctx.send(f"**[Result]**\n```{str(result).strip()}```")
+
+
+async def aexec(ctx, code):
+    """execute command"""
+    head = "async def __aexec(ctx):\n "
+    code = "".join((f"\n {line}" for line in code.split("\n")))
+    exec(head + code)  # pylint: disable=exec-used
+    return await locals()["__aexec"](ctx)
 
 
 async def check_expresison(ctx, text) -> bool:
