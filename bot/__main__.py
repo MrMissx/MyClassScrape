@@ -27,11 +27,12 @@ my prefix is `{BOT_PREFIX}`
 
 Below you can see all the commands I know.
 
-`help    `= Display this help menu.
+`auth    `= Save your credentials `alias[save]`.
+`eval    `= Execute a simple **python** scripts `alias[evaluate]`.
 `getclass <args>`= Get your class schedule `alias[myclass, schedule]`.
+`help    `= Display this help menu.
 `invite  `= Get my invite link.
-`auth    `= Save your credentials `alias[save]`
-`ping    `= Check my latency to Discord WebSocket.
+`ping    `= Check my latency to Discord server.
 `source  `= link to my source code `alias[src]`.
 `sysinfo `= See my system info i'm running on.
 
@@ -122,6 +123,8 @@ async def startup():
         LOGGER.info("Running DAILY_TASK every %s UTC", DT_TIME)
         bot.loop.create_task(daily_task())
 
+    # app = await bot.application_info()
+    # await app.owner.send("Bot Started!")
     LOGGER.info("Bot started")
 
 
