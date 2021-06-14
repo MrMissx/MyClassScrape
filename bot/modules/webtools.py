@@ -118,19 +118,26 @@ async def logs(ctx):
     """
     with codecs.open("ClassScraper.log", "r", encoding="utf-8") as log_file:
         data = log_file.read()
-    async with aiohttp.ClientSession() as session:
-        async with session.post(
-                "https://nekobin.com/api/documents",
-                json={"content": data},
-        ) as res:
-            if res.status != 200:
-                response = await res.json()
-                key = response['result']['key']
-                url = f"https://nekobin.com/raw/{key}"
-            else:
-                return await ctx.send("Fail to reach nekobin.")
+    link = await push_dogbin(data)
+    if not link:
+        return await ctx.send("Fail to reach nekobin.")
     timenow = datetime.now(timezone("Asia/Jakarta"))
     embed = Embed(
-        color=0xFF0000, description=f"Bot log [here]({url})", timestamp=timenow
+        color=0xFF0000, description=f"Bot log [here]({link})", timestamp=timenow
     )
     await ctx.send(embed=embed)
+
+
+async def push_dogbin( data) -> str:
+    """Upload a text to Nekobin"""
+    async with aiohttp.ClientSession() as session:
+        async with session.post(
+                "https://del.dog/documents",
+                data=data.encode("utf-8"),
+        ) as res:
+            if res.status == 200:
+                response = await res.json()
+                key = response['key']
+                return f"https://del.dog/{key}"
+            else:
+                return False

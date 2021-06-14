@@ -9,6 +9,7 @@ from discord.ext import commands
 
 from bot import bot
 from bot.utils import send_typing
+from .webtools import push_dogbin
 
 
 @bot.command(aliases=["eval"])
@@ -35,12 +36,18 @@ async def evaluate(ctx, *, expression: str = None):
 
     result = None
     if stderr:
-        result = f"**[stderr]**\n```{stderr.decode().strip()}```"
+        result = f"**[stderr]**\n```\n{stderr.decode().strip()}\n```"
     if stdout:
-        result = f"**[stdout]**\n```{stdout.decode().strip()}```"
+        result = f"**[stdout]**\n```\n{stdout.decode().strip()}\n```"
 
-    await ctx.send(result if result else "Expression result is False/None")
-
+    if not result or len(result) < 2000:
+        await ctx.reply(result if result else "Expression result is False/None")
+    else:
+        msg = await ctx.reply("Result too long... Pasting to Nekobin!")
+        url =await push_dogbin(str(result))
+        if not url:
+            return await msg.edit(content="Failed to reach Nekobin")
+        await msg.edit(content=url)
 
 @commands.is_owner()
 @bot.command(aliases=["term"])
@@ -61,7 +68,7 @@ async def terminal(ctx, *, command: str = None):
 
     result = str(stdout.decode().strip()) + str(stderr.decode().strip())
     user = getuser() + "@" + str(bot.user.name)
-    await ctx.send(f"```{user}:~$ {command} \n{result}```")
+    await ctx.reply(f"```{user}:~$ {command} \n{result}```")
 
 
 @commands.is_owner()
@@ -91,9 +98,15 @@ async def execute(ctx, *, expression: str = None):
     sys.stdout = old_stdout
     sys.stderr = old_stderr
 
-    result = exc or stderr or stdout or returned
-    await ctx.send(f"**[Result]**\n```{str(result).strip()}```")
-
+    result = f"**[Result]**\n```{str(exc or stderr or stdout or returned).strip()}```"
+    if len(result) < 2000:
+        await ctx.reply(result)
+    else:
+        msg = await ctx.reply("Result too long... Pasting to Nekobin!")
+        url =await push_dogbin(str(exc or stderr or stdout or returned).strip())
+        if not url:
+            return await msg.reply(content="Failed to reach Nekobin")
+        await msg.edit(content=url)
 
 async def aexec(ctx, code):
     """execute command"""
