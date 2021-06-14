@@ -4,9 +4,9 @@ Discord bot to scrape class schedule using [discord.py](https://github.com/Rappt
 
 Feel free to [invite me](https://discord.com/api/oauth2/authorize?client_id=775903023821881374&permissions=522304&scope=bot) to your server.
 
-You can invite me at http://mrmiss.wtf/MyClassScrape.
+You can invite me at http://mrmiss.me/MyClassScrape.
 
-If you are interested to contribute feel free to send a `pull request` or get in [touch](https://discordapp.com/users/789424141778288670) with me. 
+If you are interested to contribute feel free to send a `pull request`. 
 
 # Setup
 To setup this Bot you just need to set the configuration first with the `config.env` file.
