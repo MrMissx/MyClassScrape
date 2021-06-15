@@ -20,10 +20,11 @@ async def auth(ctx, cred: str = None):
             f"`{BOT_PREFIX}auth <username>$<password>`"
             "\n\n*username without @binus.ac.id*"
             "\ne.g: MyClassScraper$12345678"
-            "\n\n**disclaimer:** This bot doesn't save any of your credentials! "
-            "It only get the message_id and encrypt it. As long as the message isn't "
-            f"deleted you can use `{BOT_PREFIX}getclass` command. To delete your "
-            f"credential just delete your {BOT_PREFIX}auth..... message")
+            "\n\n**disclaimer:** This bot doesn't save any of your username nor password! "
+            "It only get your credentials (user_id and message_id) then encrypt it. "
+            "As long as the message isn't deleted you can use the scraping command. "
+            "To delete that saved data, "
+            f"just delete your {BOT_PREFIX}auth message or simply type `{BOT_PREFIX}unauth`")
 
         embed = discord.Embed(
             color=0x9B59B6,
@@ -55,3 +56,17 @@ async def auth(ctx, cred: str = None):
     )
     await ctx.reply("Saved\nTo delete your credentials just delete the message i reply")
     await ctx.message.add_reaction("\u2705")
+
+
+@bot.command(aliases=["gdpr"])
+@send_typing
+async def unauth(ctx):
+    """Delete user credentials"""
+    author = ctx.author
+    data = await SAVED_SECRET.find_one_and_delete(
+        {'_id': str(author.id)}
+    )
+    if data:
+        await ctx.reply("Done...\nYour credentials have been deleted")
+    else:
+        await ctx.reply("You haven't authenticate any credentials!")

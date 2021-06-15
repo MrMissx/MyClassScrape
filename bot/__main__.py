@@ -35,13 +35,14 @@ Below you can see all the commands I know.
 `ping    `= Check my latency to Discord server.
 `source  `= link to my source code `alias[src]`.
 `sysinfo `= See my system info i'm running on.
+`unauth  `= Delete your saved credentials from my db `alias[gdpr]`.
 
 **Notes:**
-You can fetch specific date with getclass command e.g.:
-`{BOT_PREFIX}getclass now` -> fetch today's schedule.
+You can fetch specific date with getclass command
+e.g.: `{BOT_PREFIX}getclass now` -> fetch today's schedule.
 avaliable args : today, now, tomorrow\n
-You can also use it with numbers *(starts from 0) e.g.:
-`{BOT_PREFIX}getclass 1`-> fetch tomorrow's schedule.
+You can also use it with numbers (starts from 0)
+e.g.: `{BOT_PREFIX}getclass 1`-> fetch tomorrow's schedule.
 0 = today; 1 = tomorrow; 2 = day after tomorrow; etc.
 
 You can invite me at http://mrmiss.me/MyClassScrape.
