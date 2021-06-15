@@ -1,7 +1,7 @@
+import asyncio
 import io
 import re
 import sys
-import asyncio
 import traceback
 from getpass import getuser
 
@@ -9,6 +9,7 @@ from discord.ext import commands
 
 from bot import bot
 from bot.utils import send_typing
+
 from .webtools import push_dogbin
 
 

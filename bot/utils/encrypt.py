@@ -4,7 +4,6 @@ from cryptography.fernet import Fernet
 
 from bot import KEY
 
-
 F = Fernet(KEY)
 
 
