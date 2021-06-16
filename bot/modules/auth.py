@@ -33,7 +33,10 @@ async def auth(ctx, cred: str = None):
         )
         await author.send(embed=embed)
         if ctx.guild is not None:  # dont send if in PM's
-            await ctx.reply("This command only available on PMs!\nI've send help on your PM.")
+            await ctx.reply(
+                "This command only available on PMs!\nI've send help on your PM.",
+                delete_after=5,
+            )
         return
 
     try:  # just checking the format

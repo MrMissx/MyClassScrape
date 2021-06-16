@@ -90,6 +90,8 @@ async def on_command_error(ctx, error):
     """Send an error message if something wrong."""
     if isinstance(error, errors.CommandNotFound):
         return  # don't flood on unhandled command
+    if isinstance(error, errors.NotOwner):
+        return await ctx.reply("Only my owner can access this command!", delete_after=5)
     trace = traceback.format_exception(
         type(error), error, error.__traceback__
     )
