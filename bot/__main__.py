@@ -1,9 +1,11 @@
 """Bot startup"""
 
+import asyncio
 import traceback
 
 from datetime import datetime, time, timedelta
 from importlib import import_module
+from pytz import timezone
 
 import discord
 from discord.ext.commands import context, errors
@@ -96,17 +98,23 @@ async def on_command_error(ctx, error):
         type(error), error, error.__traceback__
     )
     err = "".join(trace)
+    err_msg = f"{type(error).__name__}({error})"
     message = (
         f"An exception was raised while handling an update [{ctx.command}]\n\n"
         f"{err}"
     )
-    trigger = (
-        "I already reported to my owner... no personal thing stored except the error"
-        "\nhope this will fixed soon :)")
-    await ctx.send(f"```python\n{message}\n```" + trigger)
+    embed = discord.Embed(
+        color=0xB00020,
+        title="An exception was raised while handling an update",
+        description=f"```python\n{err_msg}\n```\nThis error has been reported to my owner.",
+        timestamp=datetime.now(timezone("Asia/Jakarta"))
+    )
     app = await bot.application_info()
     owner = app.owner
-    await owner.send(f"```python\n{message}\n```")
+    await asyncio.gather(
+        ctx.send(embed=embed),
+        owner.send(f"```python\n{message}\n```")
+    )
 
 
 async def startup():
