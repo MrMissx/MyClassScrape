@@ -1,6 +1,9 @@
 import aiohttp
+import re
 
 from discord import Embed
+from discord.ext.commands import PartialEmojiConverter 
+from discord.ext.commands.errors import PartialEmojiConversionFailure
 
 from bot import bot
 from bot.utils import check_nsfw
@@ -22,6 +25,23 @@ async def avatar(ctx):
     )
     embed.set_image(url=url)
     await ctx.send(embed=embed)
+
+
+@bot.command(aliases=["emoji", "emote"])
+async def e(ctx):
+    content = ctx.message.content
+    emoji_regex = re.compile(r"<(?P<animated>a?):(?P<name>[a-zA-Z0-9_]{2,32}):(?P<id>[0-9]{18,22})>")
+    raw_emoji = re.search(emoji_regex, content)
+    if not raw_emoji:
+        return await ctx.reply(
+            "Unable to find any emoji...\n*hint: I can't convert native discord emoji",
+            mention_author=False
+        )
+    try:
+        emoji = await PartialEmojiConverter().convert(ctx, raw_emoji.group())
+    except PartialEmojiConversionFailure as e:
+        return await ctx.send(e)
+    await ctx.send(embed=build_embed(raw_emoji.group("name"), emoji.url, None))
 
 
 @bot.command(aliases=["nyan"])
@@ -88,8 +108,9 @@ async def request(img_type: str) -> str:
     return url.get("url", None)
 
 
-def build_embed(title: str, url: str) -> Embed:
+def build_embed(title: str, url: str, footer: str = "Powered by nekos.life") -> Embed:
     embed = Embed(color=0xFFB6C1, title=title, url=url)
     embed.set_image(url=url)
-    embed.set_footer(text="Powered by nekos.life")
+    if footer:
+        embed.set_footer(text=footer)
     return embed
