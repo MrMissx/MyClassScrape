@@ -1,8 +1,10 @@
 """Bot startup"""
 
+import asyncio
 import traceback
 from datetime import datetime, time, timedelta
 from importlib import import_module
+from pytz import timezone
 
 import discord
 from discord.ext.commands import context, errors
@@ -26,13 +28,14 @@ Below you can see all the commands I know.
 `ping    `= Check my latency to Discord server.
 `source  `= link to my source code `alias[src]`.
 `sysinfo `= See my system info i'm running on.
+`unauth  `= Delete your saved credentials from my db `alias[gdpr]`.
 
 **Notes:**
-You can fetch specific date with getclass command e.g.:
-`{BOT_PREFIX}getclass now` -> fetch today's schedule.
+You can fetch specific date with getclass command
+e.g.: `{BOT_PREFIX}getclass now` -> fetch today's schedule.
 avaliable args : today, now, tomorrow\n
-You can also use it with numbers *(starts from 0) e.g.:
-`{BOT_PREFIX}getclass 1`-> fetch tomorrow's schedule.
+You can also use it with numbers (starts from 0)
+e.g.: `{BOT_PREFIX}getclass 1`-> fetch tomorrow's schedule.
 0 = today; 1 = tomorrow; 2 = day after tomorrow; etc.
 
 You can invite me at http://mrmiss.me/MyClassScrape.
@@ -80,21 +83,29 @@ async def on_command_error(ctx, error):
     """Send an error message if something wrong."""
     if isinstance(error, errors.CommandNotFound):
         return  # don't flood on unhandled command
+    if isinstance(error, errors.NotOwner):
+        return await ctx.reply("Only my owner can access this command!", delete_after=5)
     trace = traceback.format_exception(
         type(error), error, error.__traceback__
     )
     err = "".join(trace)
+    err_msg = f"{type(error).__name__}({error})"
     message = (
         f"An exception was raised while handling an update [{ctx.command}]\n\n"
         f"{err}"
     )
-    trigger = (
-        "I already reported to my owner... no personal thing stored except the error"
-        "\nhope this will fixed soon :)")
-    await ctx.send(f"```python\n{message}\n```" + trigger)
+    embed = discord.Embed(
+        color=0xB00020,
+        title="An exception was raised while handling an update",
+        description=f"```python\n{err_msg}\n```\nThis error has been reported to my owner.",
+        timestamp=datetime.now(timezone("Asia/Jakarta"))
+    )
     app = await bot.application_info()
     owner = app.owner
-    await owner.send(f"```python\n{message}\n```")
+    await asyncio.gather(
+        ctx.send(embed=embed),
+        owner.send(f"```python\n{message}\n```")
+    )
 
 
 async def startup():

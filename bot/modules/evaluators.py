@@ -99,7 +99,10 @@ async def execute(ctx, *, expression: str = None):
     sys.stdout = old_stdout
     sys.stderr = old_stderr
 
-    result = f"**[Result]**\n```{str(exc or stderr or stdout or returned).strip()}```"
+    result = str(exc or stderr or stdout or returned).strip()
+    if not result:
+        return
+    result = f"**[Result]**\n```{result}```"
     if len(result) < 2000:
         await ctx.reply(result)
     else:

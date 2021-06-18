@@ -128,7 +128,7 @@ async def logs(ctx):
     await ctx.send(embed=embed)
 
 
-async def push_dogbin( data) -> str:
+async def push_dogbin(data) -> str:
     """Upload a text to Nekobin"""
     async with aiohttp.ClientSession() as session:
         async with session.post(
