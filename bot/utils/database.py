@@ -1,9 +1,9 @@
 """Database moudle."""
 
+from motor.core import AgnosticClient, AgnosticCollection, AgnosticDatabase
 from motor.motor_asyncio import AsyncIOMotorClient
-from motor.core import AgnosticClient, AgnosticDatabase, AgnosticCollection
 
-from bot import LOGGER, DB_URI
+from bot import DB_URI, LOGGER
 
 LOGGER.info("Conecting to Database...")
 

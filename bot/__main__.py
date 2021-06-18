@@ -2,7 +2,6 @@
 
 import asyncio
 import traceback
-
 from datetime import datetime, time, timedelta
 from importlib import import_module
 from pytz import timezone
@@ -10,17 +9,9 @@ from pytz import timezone
 import discord
 from discord.ext.commands import context, errors
 
-from bot import (
-    bot,
-    BOT_TOKEN,
-    BOT_PREFIX,
-    CUSTOM_STATUS,
-    DAILY_TASK,
-    DAILY_TASK_TIME,
-    LOGGER,
-    SCHEDULE_CHANNEL,
-    TASK_MSG_PLACEHOLDER,
-)
+from bot import (BOT_PREFIX, BOT_TOKEN, CUSTOM_STATUS, DAILY_TASK,
+                 DAILY_TASK_TIME, LOGGER, SCHEDULE_CHANNEL,
+                 TASK_MSG_PLACEHOLDER, bot)
 from bot.modules import ALL_MODULES
 from bot.modules.scraper import getclass
 

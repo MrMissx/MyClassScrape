@@ -1,12 +1,12 @@
 """Bot intialization."""
 
-import os
 import ast
 import logging
-import urllib3
-from dotenv import load_dotenv
-from discord.ext import commands
+import os
 
+import urllib3
+from discord.ext import commands
+from dotenv import load_dotenv
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',

@@ -2,9 +2,8 @@
 
 import discord
 
-from bot import bot, BOT_PREFIX
+from bot import BOT_PREFIX, bot
 from bot.utils import encrypt, get_collection, send_typing
-
 
 SAVED_SECRET = get_collection("CREDATA")
 

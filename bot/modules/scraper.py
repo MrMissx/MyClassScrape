@@ -1,20 +1,20 @@
 """Scrape from Binus website."""
 
 from datetime import datetime, timedelta
+from typing import Dict, Optional
 
 import aiohttp
-from pytz import timezone
+from bs4 import BeautifulSoup
 from discord import Embed, NotFound
+from pytz import timezone
 
-from bot import bot, BOT_PREFIX, DEF_GUILD_ID, LOGGER
-from bot.utils import decrypt, formater, get_collection, send_typing
+from bot import BOT_PREFIX, DEF_GUILD_ID, LOGGER, bot
+from bot.utils import (decrypt, exam_formater, get_collection,
+                       schedule_formater, send_typing)
 
-LOGIN_URL = "https://myclass.apps.binus.ac.id/Auth/Login"
-URL = "https://myclass.apps.binus.ac.id/Home/GetViconSchedule"
 FAIL_TEXT = f"**No credentials found**\nCreate it with `{BOT_PREFIX}auth.`"
 WARN_TEXT = f"""**This is a default Schedule of LA04(my owner)!\nyour Schedule may vary.**
             \nYou can `{BOT_PREFIX}auth` yourself to scrape your schedule.
-
 """
 
 SAVED_SECRET = get_collection("CREDATA")
@@ -37,7 +37,7 @@ async def getclass(ctx, args: str = None, is_scheduler: bool = False):
         elif args.lower() == "tomorrow":
             args = "1"
 
-    schedule = await login(ctx, usr, sec)
+    schedule = await fetch_schedule(ctx, usr, sec)
     if not schedule:
         return
 
@@ -65,7 +65,7 @@ async def getclass(ctx, args: str = None, is_scheduler: bool = False):
                 # get zoom url if it's a VidCon
                 meetingurl = sched["MeetingUrl"]
 
-            text += formater(
+            text += schedule_formater(
                 time, classcode, classtype, course, week, session, meetingurl
             )
 
@@ -96,7 +96,7 @@ async def getclass(ctx, args: str = None, is_scheduler: bool = False):
                     # get zoom url if it's a VidCon
                     meetingurl = sched["MeetingUrl"]
 
-                text += formater(timeclass, classcode, classtype,
+                text += schedule_formater(timeclass, classcode, classtype,
                                  course, week, session, meetingurl)
 
         if WARN_TEXT in text:
@@ -118,6 +118,40 @@ async def getclass(ctx, args: str = None, is_scheduler: bool = False):
         description=text,
         timestamp=timenow,
         title=title)
+    embed.set_footer(text=f"By {user}")
+    await ctx.send(embed=embed)
+
+
+@bot.command(aliases=["getexam", "myexam"])
+@send_typing
+async def exam(ctx):
+    user = ctx.author
+    usr, sec, _ = await fetch_credentials(ctx, user)
+    if (usr or sec) is None:
+        return
+
+    exam_data = await fetch_exam(ctx, usr, sec)
+    if exam_data["EligibleStatus"] != 1:
+        await ctx.send(
+            "**Failed to fetch exam schedule!**\n"
+            f"**Response:** {exam_data['EligibleDescs']}")
+        return
+    exam_data = exam_data["ListExam"]
+    title = exam_data[0]["Component"] + " Schedule"  # Exam type
+    text = ""
+    for exam in exam_data:
+        classcode = exam["Class"]
+        course = exam["CourseCode"] + " - " + exam["CourseTitle"]
+        start = exam["ExamStartTime"] + ", " + exam["StartDateToDisplay"]
+        end = exam["ExamShift"] + ", " + exam["EndDateToDisplay"]
+        text += exam_formater(classcode, course, start, end)
+
+    text += "Go to [Exam website](https://exam.apps.binus.ac.id/)"
+    embed = Embed(
+        color=0x0B6623,
+        description=text,
+        title=title,
+        url="https://exam.apps.binus.ac.id/")
     embed.set_footer(text=f"By {user}")
     await ctx.send(embed=embed)
 
@@ -164,14 +198,11 @@ async def fetch_credentials(context, user):
     return usr, sec, text
 
 
-async def login(context, user, password):
-    """send a login request to the url
-    return data
-        data = data(json) request from the url.
-    """
+async def fetch_schedule(context, user, password) -> Optional[Dict]:
+    """Fetch a class schedule"""
     async with aiohttp.ClientSession() as session:
         async with session.post(
-                LOGIN_URL,
+                "https://myclass.apps.binus.ac.id/Auth/Login",
                 json={
                     "Username": user,
                     "Password": password,
@@ -190,6 +221,47 @@ async def login(context, user, password):
                 )
                 return None
 
-        async with session.get(URL) as data:
+        async with session.get(
+            "https://myclass.apps.binus.ac.id/Home/GetViconSchedule"
+        ) as data:
             result = await data.json()
     return result
+
+
+async def fetch_exam(context, user, password) -> Optional[Dict]:
+    """Fetch an exam schedule"""
+    async with aiohttp.ClientSession() as session:
+        async with session.post(
+            "https://exam.apps.binus.ac.id/Auth/Login",
+            json={
+                "username": user,
+                "password": password
+            }
+        ) as auth:
+            if auth.status != 200:
+                await context.send(
+                    "**Login Failed!\n"
+                    "This most likely caused by server issue.**"
+                )
+                return None
+            res = await auth.json()
+            if not res["Status"]:
+                await context.send(
+                    f"**Login Failed.\n**"
+                    f"Server response: \"{res['Message']}\""
+                )
+                return None
+
+        async with session.get(
+            "https://exam.apps.binus.ac.id/Home/Exam"
+        ) as web:
+            raw_html = await web.read()
+            soup = BeautifulSoup(raw_html, "html.parser")
+            tag = soup.find(id="ddlPeriod").find_all("option")
+            exam_key = tag[len(tag) - 1]["value"]  # Get the latest exam key
+
+        async with session.post(
+            "https://exam.apps.binus.ac.id/Home/GetExamSchedule",
+            json={"key": exam_key}
+        ) as data:
+            return await data.json()

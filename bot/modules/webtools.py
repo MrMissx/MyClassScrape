@@ -4,12 +4,12 @@ import codecs
 import platform
 import sys
 from datetime import datetime
-import psutil
-import aiohttp
-from pytz import timezone
 
+import aiohttp
+import psutil
 from discord import Embed, __version__
 from discord.ext import commands
+from pytz import timezone
 
 from bot import bot
 from bot.utils import send_typing
