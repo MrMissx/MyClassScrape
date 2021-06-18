@@ -1,6 +1,7 @@
 # pylint: disable=R0913
 """Format a schedule for easy reading."""
 
+
 def schedule_formater(
         time,
         classcode,

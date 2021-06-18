@@ -132,7 +132,9 @@ async def exam(ctx):
 
     exam_data = await fetch_exam(ctx, usr, sec)
     if exam_data["EligibleStatus"] != 1:
-        await ctx.send(f"**Failed to fetch exam schedule!**\n**Response:** {exam_data['EligibleDescs']}")
+        await ctx.send(
+            "**Failed to fetch exam schedule!**\n"
+            f"**Response:** {exam_data['EligibleDescs']}")
         return
     exam_data = exam_data["ListExam"]
     title = exam_data[0]["Component"] + " Schedule"  # Exam type
@@ -219,7 +221,9 @@ async def fetch_schedule(context, user, password) -> Optional[Dict]:
                 )
                 return None
 
-        async with session.get("https://myclass.apps.binus.ac.id/Home/GetViconSchedule") as data:
+        async with session.get(
+            "https://myclass.apps.binus.ac.id/Home/GetViconSchedule"
+        ) as data:
             result = await data.json()
     return result
 
@@ -236,7 +240,8 @@ async def fetch_exam(context, user, password) -> Optional[Dict]:
         ) as auth:
             if auth.status != 200:
                 await context.send(
-                    "**Login Failed!\nThis most likely caused by server issue.**"
+                    "**Login Failed!\n"
+                    "This most likely caused by server issue.**"
                 )
                 return None
             res = await auth.json()
@@ -247,7 +252,9 @@ async def fetch_exam(context, user, password) -> Optional[Dict]:
                 )
                 return None
 
-        async with session.get("https://exam.apps.binus.ac.id/Home/Exam") as web:
+        async with session.get(
+            "https://exam.apps.binus.ac.id/Home/Exam"
+        ) as web:
             raw_html = await web.read()
             soup = BeautifulSoup(raw_html, "html.parser")
             tag = soup.find(id="ddlPeriod").find_all("option")
