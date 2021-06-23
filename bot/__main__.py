@@ -22,6 +22,7 @@ Below you can see all the commands I know.
 
 `auth    `= Save your credentials `alias[save]`.
 `eval    `= Execute a simple **python** scripts `alias[evaluate]`.
+`exam    `= Get the latest exam schedule `alias[getexam, myexam]` **__\*Beta__**.
 `getclass <args>`= Get your class schedule `alias[myclass, schedule]`.
 `help    `= Display this help menu.
 `invite  `= Get my invite link.
@@ -38,7 +39,7 @@ You can also use it with numbers (starts from 0)
 e.g.: `{BOT_PREFIX}getclass 1`-> fetch tomorrow's schedule.
 0 = today; 1 = tomorrow; 2 = day after tomorrow; etc.
 
-You can invite me at http://mrmiss.me/MyClassScrape.
+You can invite me at [here](http://mrmiss.me/MyClassScrape).
 """
 
 DT_TIME = time(hour=DAILY_TASK_TIME)  # in UTC default -> 23
@@ -55,6 +56,11 @@ async def help(ctx):  # pylint: disable=redefined-builtin
     icon = owner.avatar_url_as(static_format="png")
     embed = discord.Embed(
         color=0x9B59B6, title="**Hello there!**", description=HELP_STRING
+    )
+    embed.set_author(
+        name=ctx.guild.me.display_name,
+        url="http://mrmiss.me/MyClassScrape",
+        icon_url=ctx.guild.me.avatar_url
     )
     embed.set_footer(text=f"Made with 💖 by {owner}", icon_url=icon)
     await ctx.send(embed=embed)
