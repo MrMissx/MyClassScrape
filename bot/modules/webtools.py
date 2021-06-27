@@ -7,6 +7,7 @@ from datetime import datetime
 
 import aiohttp
 import psutil
+from aiohttp.client_exceptions import ClientConnectionError
 from discord import Embed, __version__
 from discord.ext import commands
 from pytz import timezone
@@ -118,7 +119,7 @@ async def logs(ctx):
     """
     with codecs.open("ClassScraper.log", "r", encoding="utf-8") as log_file:
         data = log_file.read()
-    link = await push_dogbin(data)
+    link = await push_pastebin(data)
     if not link:
         return await ctx.send("Fail to reach nekobin.")
     timenow = datetime.now(timezone("Asia/Jakarta"))
@@ -128,16 +129,31 @@ async def logs(ctx):
     await ctx.send(embed=embed)
 
 
-async def push_dogbin(data) -> str:
-    """Upload a text to Nekobin"""
+async def push_pastebin(data) -> str:
+    """Upload a text to pastebin"""
     async with aiohttp.ClientSession() as session:
-        async with session.post(
-                "https://del.dog/documents",
-                data=data.encode("utf-8"),
-        ) as res:
-            if res.status == 200:
-                response = await res.json()
-                key = response['key']
-                return f"https://del.dog/{key}"
-            else:
+        try:
+            async with session.post(
+                    "https://del.dog/documents",
+                    data=data.encode("utf-8"),
+            ) as res:
+                print(res.status)
+                if res.status == 200:
+                    response = await res.json()
+                    return f"https://del.dog/{response['key']}"
+                else:
+                    return False
+        except ClientConnectionError:
+            try:
+                async with session.post(
+                        "https://nekobin.com/api/documents",
+                        json={"content": data},
+                ) as res:
+                    print(res.status)
+                    if res.status == 201:
+                        response = await res.json()
+                        return f"https://nekobin.com/{response['result']['key']}"
+                    else:
+                        return False
+            except ClientConnectionError:
                 return False

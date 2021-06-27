@@ -10,7 +10,7 @@ from discord.ext import commands
 from bot import bot
 from bot.utils import send_typing
 
-from .webtools import push_dogbin
+from .webtools import push_pastebin
 
 
 @bot.command(aliases=["eval"])
@@ -45,7 +45,7 @@ async def evaluate(ctx, *, expression: str = None):
         await ctx.reply(result if result else "Expression result is False/None")
     else:
         msg = await ctx.reply("Result too long... Pasting to Nekobin!")
-        url =await push_dogbin(str(result))
+        url =await push_pastebin(str(result))
         if not url:
             return await msg.edit(content="Failed to reach Nekobin")
         await msg.edit(content=url)
@@ -107,7 +107,7 @@ async def execute(ctx, *, expression: str = None):
         await ctx.reply(result)
     else:
         msg = await ctx.reply("Result too long... Pasting to Nekobin!")
-        url =await push_dogbin(str(exc or stderr or stdout or returned).strip())
+        url =await push_pastebin(str(exc or stderr or stdout or returned).strip())
         if not url:
             return await msg.reply(content="Failed to reach Nekobin")
         await msg.edit(content=url)
