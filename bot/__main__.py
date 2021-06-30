@@ -58,9 +58,9 @@ async def help(ctx):  # pylint: disable=redefined-builtin
         color=0x9B59B6, title="**Hello there!**", description=HELP_STRING
     )
     embed.set_author(
-        name=ctx.guild.me.display_name,
+        name=ctx.me.display_name,
         url="http://mrmiss.me/MyClassScrape",
-        icon_url=ctx.guild.me.avatar_url
+        icon_url=ctx.me.avatar_url
     )
     embed.set_footer(text=f"Made with 💖 by {owner}", icon_url=icon)
     await ctx.send(embed=embed)
