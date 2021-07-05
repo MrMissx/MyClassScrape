@@ -131,6 +131,8 @@ async def exam(ctx):
         return
 
     exam_data = await fetch_exam(ctx, usr, sec)
+    if not exam_data:
+        await ctx.send("Failed to fetch exam schedule!")
     if exam_data["EligibleStatus"] != 1:
         await ctx.send(
             "**Failed to fetch exam schedule!**\n"
@@ -138,13 +140,15 @@ async def exam(ctx):
         return
     exam_data = exam_data["ListExam"]
     title = exam_data[0]["Component"] + " Schedule"  # Exam type
+    etype = exam_data[0]["ExamType"]
     text = ""
     for exam in exam_data:
-        classcode = exam["Class"]
-        course = exam["CourseCode"] + " - " + exam["CourseTitle"]
-        start = exam["ExamStartTime"] + ", " + exam["StartDateToDisplay"]
-        end = exam["ExamShift"] + ", " + exam["EndDateToDisplay"]
-        text += exam_formater(classcode, course, start, end)
+        if exam["ExamType"] == etype:
+            classcode = exam["Class"]
+            course = exam["CourseCode"] + " - " + exam["CourseTitle"]
+            start = exam["ExamStartTime"] + ", " + exam["StartDateToDisplay"]
+            end = exam["ExamShift"] + ", " + exam["EndDateToDisplay"]
+            text += exam_formater(classcode, course, start, end)
 
     text += "Go to [Exam website](https://exam.apps.binus.ac.id/)"
     embed = Embed(
