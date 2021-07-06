@@ -19,7 +19,7 @@ HELP_STRING = f"""
 my prefix is `{BOT_PREFIX}`
 
 Below you can see all the commands I know.
-
+**MAIN**
 `auth    `= Save your credentials `alias[save]`.
 `eval    `= Execute a simple **python** scripts `alias[evaluate]`.
 `exam    `= Get the latest exam schedule `alias[getexam, myexam]` **__\*Beta__**.
@@ -29,7 +29,12 @@ Below you can see all the commands I know.
 `ping    `= Check my latency to Discord server.
 `source  `= link to my source code `alias[src]`.
 `sysinfo `= See my system info i'm running on.
-`unauth  `= Delete your saved credentials from my db `alias[gdpr]`.
+`unauth  `= Delete your saved credentials from my db `alias[gdpr]`. 
+
+**FUN**
+`emoji`, `neko`, `slap`, `baka`, `kiss`, `wallpaper`, `kitsune`.
+
+Use `{BOT_PREFIX}help fun` for more information about fun category.
 
 **Notes:**
 You can fetch specific date with getclass command
@@ -42,20 +47,34 @@ e.g.: `{BOT_PREFIX}getclass 1`-> fetch tomorrow's schedule.
 You can invite me at [here](http://mrmiss.me/MyClassScrape).
 """
 
+FUN_HELP = f"""
+`baka     `= stupidddd.
+`emoji    `= Larger a discord server emoji `alias[e, emote]`.
+`kiss     `= Random kissing images.
+`kitsune  `= Random foxy girl images `alias[fox_girl]`.
+`neko     `= Random cat girl images `alias[nyan]`.
+`slap     `= Random slap images.
+`wallpaper`= Random wallpaper images `alias[wall, wp]`.
+"""
+
 DT_TIME = time(hour=DAILY_TASK_TIME)  # in UTC default -> 23
 
 for module in ALL_MODULES:
     imported_module = import_module("bot.modules." + module)
 
+def to_lower(args) -> str:
+    return args.lower()
+
 
 @bot.command()
-async def help(ctx):  # pylint: disable=redefined-builtin
+async def help(ctx, args: to_lower = None,):  # pylint: disable=redefined-builtin
     """Send bot helper."""
     app = await bot.application_info()
     owner = app.owner
     icon = owner.avatar_url_as(static_format="png")
+    help_str = FUN_HELP if args == "fun" else HELP_STRING
     embed = discord.Embed(
-        color=0x9B59B6, title="**Hello there!**", description=HELP_STRING
+        color=0x9B59B6, title="**Hello there!**", description=help_str
     )
     embed.set_author(
         name=ctx.me.display_name,
