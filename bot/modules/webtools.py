@@ -119,9 +119,9 @@ async def logs(ctx):
     """
     with codecs.open("ClassScraper.log", "r", encoding="utf-8") as log_file:
         data = log_file.read()
-    link = await push_pastebin(data)
+    link = await push_hastebin(data)
     if not link:
-        return await ctx.send("Fail to reach nekobin.")
+        return await ctx.send("Fail to reach hastebin.")
     timenow = datetime.now(timezone("Asia/Jakarta"))
     embed = Embed(
         color=0xFF0000, description=f"Bot log [here]({link})", timestamp=timenow
@@ -129,31 +129,18 @@ async def logs(ctx):
     await ctx.send(embed=embed)
 
 
-async def push_pastebin(data) -> str:
+async def push_hastebin(data) -> str:
     """Upload a text to pastebin"""
     async with aiohttp.ClientSession() as session:
         try:
             async with session.post(
-                    "https://del.dog/documents",
-                    data=data.encode("utf-8"),
+                "https://hastebin.com/documents",
+                data=data.encode("utf-8"),
             ) as res:
-                print(res.status)
                 if res.status == 200:
                     response = await res.json()
-                    return f"https://del.dog/{response['key']}"
+                    return f"https://hastebin.com/{response['key']}"
                 else:
                     return False
         except ClientConnectionError:
-            try:
-                async with session.post(
-                        "https://nekobin.com/api/documents",
-                        json={"content": data},
-                ) as res:
-                    print(res.status)
-                    if res.status == 201:
-                        response = await res.json()
-                        return f"https://nekobin.com/{response['result']['key']}"
-                    else:
-                        return False
-            except ClientConnectionError:
-                return False
+            return False
