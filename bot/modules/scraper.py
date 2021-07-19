@@ -13,7 +13,7 @@ from bot.utils import (decrypt, exam_formater, get_collection,
                        schedule_formater, send_typing)
 
 FAIL_TEXT = f"**No credentials found**\nCreate it with `{BOT_PREFIX}auth.`"
-WARN_TEXT = f"""**This is a default Schedule of LA04(my owner)!\nyour Schedule may vary.**
+WARN_TEXT = f"""**This is a default Schedule of my owner!\nyour Schedule may vary.**
             \nYou can `{BOT_PREFIX}auth` yourself to scrape your schedule.
 """
 

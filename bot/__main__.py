@@ -45,6 +45,8 @@ e.g.: `{BOT_PREFIX}getclass 1`-> fetch tomorrow's schedule.
 0 = today; 1 = tomorrow; 2 = day after tomorrow; etc.
 
 You can invite me at [here](http://mrmiss.me/MyClassScrape).
+For devs, you can use my [unofficial REST API](https://github.com/MrMissx/Binus_API).
+Feel free to contribute there :)
 """
 
 FUN_HELP = f"""
@@ -54,7 +56,10 @@ FUN_HELP = f"""
 `kitsune  `= Random foxy girl images `alias[fox_girl]`.
 `neko     `= Random cat girl images `alias[nyan]`.
 `slap     `= Random slap images.
-`wallpaper`= Random wallpaper images `alias[wall, wp]`.
+`wallpaper`= Random wallpaper images `alias[wall, wp]`.\n
+`avatar   `= Get your avatar or people you mention.
+`banner   `= Get your banner or people you mention.
+`emoji    `= Get an image from emoji `alias[emote, e]`.
 """
 
 DT_TIME = time(hour=DAILY_TASK_TIME)  # in UTC default -> 23

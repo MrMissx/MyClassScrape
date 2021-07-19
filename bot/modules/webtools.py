@@ -44,6 +44,7 @@ async def source(ctx):
     icon = owner.avatar_url_as(static_format="png")
     text = (
         "[Here](https://github.com/keselekpermen69/MyClassScrape) my source code.\n"
+        "and you might want to see my [Unofficial REST API](https://github.com/MrMissx/Binus_API)\n"
         "Feel free to contribute there :)")
     embed = Embed(color=0xFFB6C1, description=text)
     embed.set_footer(text=f"by {owner}", icon_url=icon)
