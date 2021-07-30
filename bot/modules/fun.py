@@ -36,7 +36,8 @@ async def avatar(ctx):
         user = ctx.message.mentions[0]  # only get the first user
     else:
         user = ctx.author
-    url = user.avatar_url
+    fmt = "gif" if user.is_avatar_animated() else "png"
+    url = user.avatar_url_as(format=fmt)
     embed = Embed(
         color=0xF5ABC9,
         title=f"{user.name}#{user.discriminator}",
