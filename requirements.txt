@@ -6,4 +6,5 @@ motor
 psutil
 pytz
 python-dotenv
+requests
 urllib3
