@@ -115,6 +115,12 @@ async def on_command_error(ctx, error):
         return  # don't flood on unhandled command
     if isinstance(error, errors.NotOwner):
         return await ctx.reply("Only my owner can access this command!", delete_after=5)
+    if isinstance(error.__cause__, discord.errors.Forbidden):
+        embed = discord.Embed(
+            color=0xFF0000,
+            description="I do not have permission to send messages in that channel!"
+        )
+        return await ctx.author.send(embed=embed)
     trace = traceback.format_exception(
         type(error), error, error.__traceback__
     )
