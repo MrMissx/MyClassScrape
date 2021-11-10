@@ -130,9 +130,10 @@ async def exam(ctx):
     if (usr or sec) is None:
         return
 
-    exam_data = await fetch_exam(ctx, usr, sec)
-    if not exam_data:
-        await ctx.send("Failed to fetch exam schedule!")
+    data = await fetch_exam(ctx, usr, sec)
+    if not data:
+        return await ctx.send("Failed to fetch exam schedule!")
+    exam_data = data["examSchedule"]
     if exam_data["EligibleStatus"] != 1:
         await ctx.send(
             "**Failed to fetch exam schedule!**\n"
