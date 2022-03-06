@@ -22,7 +22,7 @@ SAVED_SECRET = get_collection("CREDATA")
 
 @bot.command(aliases=["myclass", "schedule"])
 @send_typing
-async def getclass(ctx, args: str = None, is_scheduler: bool = False):
+async def getclass(ctx, args: Optional[str] = None, is_scheduler: bool = False):
     """Get the schedule for the user who trigger this command."""
     # pylint: disable=R0914, R0912, R0915
     user = ctx.author
@@ -39,7 +39,11 @@ async def getclass(ctx, args: str = None, is_scheduler: bool = False):
 
     schedule = await fetch_schedule(ctx, usr, sec)
     if not schedule:
-        return
+        embed = Embed(
+            color=0xFF0000,
+            description="Failed to fetch schedule. See [here](https://github.com/MrMissx/MyClassScrape/wiki)",
+        )
+        return await ctx.send(embed=embed)
 
     if args is None:
         dateold = ""
@@ -140,6 +144,8 @@ async def exam(ctx):
             f"**Response:** {exam_data['EligibleDescs']}")
         return
     exam_data = exam_data["ListExam"]
+    if not exam_data:
+        return await ctx.send("No exam schedule found!")
     title = exam_data[0]["Component"] + " Schedule"  # Exam type
     etype = exam_data[0]["ExamType"]
     text = ""
@@ -218,13 +224,17 @@ async def fetch_schedule(context, user, password) -> Optional[Dict]:
                     "**Login Failed!\nThis most likely caused by server issue.**"
                 )
                 return None
-            res = await auth.json()
-            if not res["Status"]:
-                await context.send(
-                    f"**Login Failed.\n**"
-                    f"Server response: \"{res['Message']}\""
-                )
+            try:
+                res = await auth.json()
+                if not res["Status"]:
+                    await context.send(
+                        f"**Login Failed.\n**"
+                        f"Server response: \"{res['Message']}\""
+                    )
+                    return None
+            except aiohttp.ContentTypeError:
                 return None
+
 
         async with session.get(
             "https://myclass.apps.binus.ac.id/Home/GetViconSchedule"
